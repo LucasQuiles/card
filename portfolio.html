@@ -26,15 +26,18 @@
     --glow: rgba(255,255,255,0.04);
   }
 
-  html { font-size: 16px; scroll-behavior: smooth; }
+  html { font-size: 16px; scroll-behavior: smooth; overflow-x: hidden; }
 
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text-primary);
     min-height: 100vh;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   body::before {
@@ -75,7 +78,9 @@
   }
 
   .back-link:hover { color: var(--text-secondary); }
-  .back-link svg { width: 14px; height: 14px; }
+  .back-link:active { color: var(--text-primary); }
+  .back-link svg { width: 14px; height: 14px; transition: transform 0.3s ease; }
+  .back-link:hover svg { transform: translateX(-3px); }
 
   .page-logo {
     width: 48px; height: 48px;
@@ -132,14 +137,30 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
-    transition: border-color 0.4s ease, transform 0.3s ease;
+    transition: border-color 0.4s ease, transform 0.3s ease, box-shadow 0.4s ease, background 0.6s ease;
     position: relative;
+    animation: fadeUp 0.5s ease both;
   }
 
   .project-card:hover {
     border-color: var(--border-hover);
     transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
   }
+
+  .project-card:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .projects .project-card:nth-child(1) { animation-delay: 0.05s; }
+  .projects .project-card:nth-child(2) { animation-delay: 0.1s; }
+  .projects .project-card:nth-child(3) { animation-delay: 0.15s; }
 
   .project-card::before {
     content: '';
@@ -188,22 +209,31 @@
   .mark-platform {
     background: linear-gradient(135deg, rgba(99,102,241,0.20), rgba(139,92,246,0.12));
     border: 1px solid rgba(99,102,241,0.15);
+    transition: transform 0.3s ease, box-shadow 0.4s ease;
   }
 
   .mark-orchestration {
     background: linear-gradient(135deg, rgba(6,182,212,0.18), rgba(59,130,246,0.10));
     border: 1px solid rgba(6,182,212,0.12);
+    transition: transform 0.3s ease, box-shadow 0.4s ease;
   }
 
   .mark-app {
     background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(251,146,60,0.10));
     border: 1px solid rgba(245,158,11,0.12);
+    transition: transform 0.3s ease, box-shadow 0.4s ease;
   }
 
   .mark-infra {
     background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(34,211,238,0.10));
     border: 1px solid rgba(16,185,129,0.12);
+    transition: transform 0.3s ease, box-shadow 0.4s ease;
   }
+
+  .project-card:hover .mark-platform { box-shadow: 0 0 16px rgba(99,102,241,0.15); }
+  .project-card:hover .mark-orchestration { box-shadow: 0 0 16px rgba(6,182,212,0.15); }
+  .project-card:hover .mark-app { box-shadow: 0 0 16px rgba(245,158,11,0.15); }
+  .project-card:hover .mark-infra { box-shadow: 0 0 16px rgba(16,185,129,0.15); }
 
   .project-name {
     font-size: 1.125rem;
@@ -217,7 +247,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 6px;
+    margin-top: 8px;
   }
 
   .badge {
@@ -315,7 +345,8 @@
   }
 
   .project-link:hover { color: var(--text-secondary); }
-  .project-link svg { width: 10px; height: 10px; }
+  .project-link:hover svg { transform: translate(2px, -2px); }
+  .project-link svg { width: 10px; height: 10px; transition: transform 0.3s ease; }
 
   /* ─── Footer ─── */
   .page-footer {
@@ -370,6 +401,13 @@
     border-color: var(--border-hover);
     color: var(--text-primary);
     transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+
+  .quick-action:active {
+    transform: translateY(0);
+    background: rgba(255,255,255,0.12);
+    transition-duration: 0.1s;
   }
 
   .quick-action svg { width: 20px; height: 20px; }
@@ -416,6 +454,12 @@
     color: var(--text-primary);
     border-color: var(--border-hover);
     background: var(--glow);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.97);
+    transition-duration: 0.1s;
   }
 
   .powered-by {
@@ -445,8 +489,17 @@
     .project-metrics { gap: 14px; }
     .project-mark { width: 38px; height: 38px; border-radius: 10px; }
     .project-mark svg { width: 18px; height: 18px; }
+    .project-header { gap: 12px; }
     .quick-actions { gap: 10px; }
     .quick-action { width: 48px; height: 48px; border-radius: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 </style>
 </head>
@@ -489,7 +542,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Production WhatsApp platform running multiple concurrent sessions, each operating as a passive listener, chatbot, or autonomous AI agent. Fleet console for managing instances, durable message queuing, and a poll-based decision bridge for structured human-in-the-loop input.</p>
+      <p class="project-desc">Turns WhatsApp into a business operations channel. AI agents handle customer conversations, schedule appointments, process orders, and coordinate team workflows &mdash; all inside the messaging app your clients already use. Multiple agents run concurrently, each tailored to a different business function.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">162</span><span class="metric-label">MCP tools</span></div>
         <div class="metric"><span class="metric-val">3</span><span class="metric-label">runtime modes</span></div>
@@ -526,7 +579,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Secure bridge between AI agents and the Microsoft 365 ecosystem &mdash; email, calendar, drive, Teams, SharePoint. Standalone token broker with MSAL caching, multi-account management, and fine-grained Graph API permission scoping. Agents access enterprise data without touching credentials.</p>
+      <p class="project-desc">Gives AI agents secure, controlled access to your company's email, calendar, files, and Teams &mdash; without exposing credentials. Agents draft responses, schedule meetings, pull documents, and post updates across the Microsoft 365 suite on behalf of your team.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">6+</span><span class="metric-label">M365 services</span></div>
         <div class="metric"><span class="metric-val">Multi</span><span class="metric-label">account</span></div>
@@ -563,7 +616,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">SDLC operating system coordinating 30 specialized AI agents across model tiers. Conductor assigns work, Sentinels catch drift, Oracles run adversarial review. Twelve validation hooks and continuous verification loops enforce quality before code reaches production.</p>
+      <p class="project-desc">An entire software development team, automated. 30 AI agents collaborate to write, review, test, and ship code &mdash; each specialized for a different phase. Built-in adversarial review and quality gates catch issues before they reach production, reducing the cost and risk of shipping software.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">30</span><span class="metric-label">agents</span></div>
         <div class="metric"><span class="metric-val">12</span><span class="metric-label">validation hooks</span></div>
@@ -598,7 +651,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Coordination layer running up to 8 AI coding agents in parallel through a shared task graph. Lead agent decomposes work, dispatches to workers in tmux panes, and monitors progress. Failed tasks re-queue automatically with failure context preserved.</p>
+      <p class="project-desc">Multiplies development throughput by running up to 8 AI coding agents simultaneously on different parts of the same project. A lead agent breaks down the work, assigns tasks, and reassigns failures automatically &mdash; delivering in hours what would take a team days.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">8</span><span class="metric-label">parallel workers</span></div>
         <div class="metric"><span class="metric-val">SQLite WAL</span><span class="metric-label">task DAG</span></div>
@@ -632,7 +685,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Real-time status display for AI coding sessions. Context health, token consumption, cost tracking, system resources, and git state across 41 configurable modules in a compact 3-line terminal output. Instant visibility into how agents consume resources.</p>
+      <p class="project-desc">Live operational awareness for AI-assisted development. Tracks cost, context health, token burn rate, and system resources in real time &mdash; so teams know exactly what their AI agents are spending and whether sessions are productive or stalled.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">41</span><span class="metric-label">modules</span></div>
         <div class="metric"><span class="metric-val">ANSI</span><span class="metric-label">truecolor</span></div>
@@ -671,7 +724,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Cross-platform mobile app for collectibles &mdash; real-time social feed, collection tracking, trade management, and community features. Native frontend on Expo, API on Fastify, PostgreSQL backend, real-time sync for social interactions.</p>
+      <p class="project-desc">A marketplace and community app where collectors buy, sell, trade, and show off. Real-time social feeds, collection tracking, and trade negotiations &mdash; purpose-built for the collectibles market on both iOS and Android.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">iOS + Android</span><span class="metric-label">native</span></div>
         <div class="metric"><span class="metric-val">Real-time</span><span class="metric-label">social feed</span></div>
@@ -702,7 +755,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Centralized operations dashboard for distributed infrastructure &mdash; service health, agent status, resource utilization, and alert management across multiple machines. Single pane of glass over complex multi-node environments.</p>
+      <p class="project-desc">One screen that shows everything running across your infrastructure &mdash; service health, agent status, resource usage, and active alerts. Replaces scattered monitoring tools with a single, real-time operational view.</p>
       <div class="project-tech">
         <span class="tech-tag">Python</span>
         <span class="tech-tag">FastAPI</span>
@@ -726,7 +779,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">CRM extraction pipelines and invoicing tools for small business operations. Customer data management, automated invoice generation, and integration with existing business workflows.</p>
+      <p class="project-desc">Customer management and billing tools built for small businesses that outgrow spreadsheets. Automated invoicing, customer data pipelines, and workflow integration &mdash; so billing and client records stay organized without a dedicated admin team.</p>
       <div class="project-tech">
         <span class="tech-tag">TypeScript</span>
         <span class="tech-tag">Node.js</span>
@@ -758,7 +811,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Private AI environments where data stays on-premise. Local LLM hosting with Ollama &mdash; CodeLlama 70B, DeepSeek R1 70B, Qwen 32B &mdash; encrypted mesh networking via Tailscale and WireGuard, zero-trust access between distributed nodes. Deployed for organizations where data sovereignty is non-negotiable.</p>
+      <p class="project-desc">AI that never leaves your building. Full-capability language models running on your own hardware, connected through encrypted mesh networking with zero-trust access. Built for organizations in regulated industries &mdash; healthcare, finance, legal &mdash; where data sovereignty is non-negotiable.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">70B</span><span class="metric-label">parameter models</span></div>
         <div class="metric"><span class="metric-val">Zero-trust</span><span class="metric-label">mesh network</span></div>
@@ -791,7 +844,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Deterministic guardrail systems for AI coding agents &mdash; pre-execution hook validators, cache observability, test integrity enforcement, and credential protection. Prevents agents from writing low-quality tests, accessing secrets, or executing destructive changes without oversight.</p>
+      <p class="project-desc">Safety systems that prevent AI agents from making costly mistakes. Automated guardrails intercept destructive actions, protect credentials, enforce code quality standards, and ensure every agent-generated change meets review criteria before it ships.</p>
       <div class="project-tech">
         <span class="tech-tag">Python</span>
         <span class="tech-tag">Claude Code Hooks</span>
@@ -818,7 +871,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">One-command provisioning that enrolls new machines into a distributed mesh. Automated Tailscale enrollment, SSH key exchange, service deployment, and monitoring registration across macOS, Linux, and Windows. Hardware goes from unboxed to production-ready in minutes.</p>
+      <p class="project-desc">New hardware goes from unboxed to production-ready in minutes. One command handles network enrollment, security configuration, service deployment, and monitoring setup across macOS, Linux, and Windows &mdash; eliminating hours of manual provisioning per machine.</p>
       <div class="project-tech">
         <span class="tech-tag">Bash</span>
         <span class="tech-tag">PowerShell</span>
