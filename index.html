@@ -218,51 +218,9 @@
     line-height: 1.45;
   }
 
-  /* ─── Contact Links ─── */
-  .contact {
-    padding: 8px 36px 16px;
-  }
-
-  .contact-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 11px 0;
-    text-decoration: none;
-    color: var(--text-secondary);
-    transition: color 0.3s ease;
-    border-bottom: 1px solid transparent;
-  }
-
-  .contact-item:hover {
-    color: var(--text-primary);
-  }
-
-  .contact-item:not(:last-child) {
-    border-bottom-color: var(--border);
-  }
-
-  .contact-icon {
-    width: 17px;
-    height: 17px;
-    flex-shrink: 0;
-    opacity: 0.4;
-    transition: opacity 0.3s ease;
-  }
-
-  .contact-item:hover .contact-icon {
-    opacity: 0.8;
-  }
-
-  .contact-text {
-    font-size: 0.8125rem;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
-
   /* ─── Quick Actions ─── */
   .quick-actions {
-    padding: 8px 36px 16px;
+    padding: 16px 36px 20px;
     display: flex;
     justify-content: center;
     gap: 12px;
@@ -399,7 +357,7 @@
     .card-header { padding: 32px 24px 22px; }
     .logo-mark { width: 56px; height: 56px; margin-bottom: 20px; }
     .name { font-size: 1.375rem; }
-    .tagline, .services, .contact, .quick-actions, .card-footer { padding-left: 24px; padding-right: 24px; }
+    .tagline, .services, .quick-actions, .card-footer { padding-left: 24px; padding-right: 24px; }
     .divider { margin: 0 24px; }
   }
 
@@ -494,33 +452,6 @@
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <!-- Contact -->
-  <div class="contact">
-    <a href="tel:+18459780919" class="contact-item">
-      <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-      </svg>
-      <div class="contact-text">(845) 978-0919</div>
-    </a>
-
-    <a href="mailto:Lucas@Quiles.studio" class="contact-item">
-      <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
-      </svg>
-      <div class="contact-text">Lucas@Quiles.studio</div>
-    </a>
-
-    <a href="https://quiles.studio" target="_blank" rel="noopener" class="contact-item">
-      <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-      </svg>
-      <div class="contact-text">Quiles.studio</div>
-    </a>
-  </div>
-
   <!-- Quick Actions -->
   <div class="quick-actions">
     <a href="tel:+18459780919" class="quick-action" aria-label="Call">
@@ -546,6 +477,12 @@
         <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
       </svg>
       <span class="quick-action-label">Email</span>
+    </a>
+    <a href="https://quiles.studio" target="_blank" rel="noopener" class="quick-action" aria-label="Website">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
+      <span class="quick-action-label">Web</span>
     </a>
   </div>
 
