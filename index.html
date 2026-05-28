@@ -218,6 +218,26 @@
     line-height: 1.45;
   }
 
+  /* ─── Footer CTA ─── */
+  .footer-cta-section {
+    padding: 24px 36px 8px;
+    text-align: center;
+  }
+
+  .footer-cta {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .footer-text {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
   /* ─── Quick Actions ─── */
   .quick-actions {
     padding: 16px 36px 20px;
@@ -357,7 +377,7 @@
     .card-header { padding: 32px 24px 22px; }
     .logo-mark { width: 56px; height: 56px; margin-bottom: 20px; }
     .name { font-size: 1.375rem; }
-    .tagline, .services, .quick-actions, .card-footer { padding-left: 24px; padding-right: 24px; }
+    .tagline, .services, .quick-actions, .card-footer, .footer-cta-section { padding-left: 24px; padding-right: 24px; }
     .divider { margin: 0 24px; }
   }
 
@@ -452,6 +472,14 @@
     </div>
   </div>
 
+  <div class="divider"></div>
+
+  <!-- Footer CTA -->
+  <div class="footer-cta-section">
+    <div class="footer-cta">Let's build something.</div>
+    <p class="footer-text">Whether you need an agent fleet, a platform, or a second opinion on architecture &mdash; we're here.</p>
+  </div>
+
   <!-- Quick Actions -->
   <div class="quick-actions">
     <a href="tel:+18459780919" class="quick-action" aria-label="Call">
@@ -478,21 +506,12 @@
       </svg>
       <span class="quick-action-label">Email</span>
     </a>
-    <a href="https://quiles.studio" target="_blank" rel="noopener" class="quick-action" aria-label="Website">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-      </svg>
-      <span class="quick-action-label">Web</span>
-    </a>
   </div>
-
-  <div class="divider"></div>
 
   <!-- Action buttons -->
   <div class="card-footer">
     <a href="#" class="btn btn-primary" id="saveContactBtn" onclick="saveContact(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v-2"/>
         <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
         <polyline points="17,21 17,13 7,13 7,21"/>
         <polyline points="7,3 7,8 15,8"/>
