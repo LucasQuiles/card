@@ -107,14 +107,16 @@
     position: relative;
   }
 
-  .logo-mark svg {
+  .logo-mark img {
     width: 100%;
     height: 100%;
+    object-fit: contain;
+    mix-blend-mode: lighten;
     filter: drop-shadow(0 0 20px rgba(255,255,255,0.06));
     transition: filter 0.4s ease;
   }
 
-  .card:hover .logo-mark svg {
+  .card:hover .logo-mark img {
     filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
   }
 
@@ -403,12 +405,7 @@
   <!-- Header -->
   <div class="card-header">
     <div class="logo-mark">
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="42" cy="44" r="30" fill="white"/>
-        <circle cx="42" cy="44" r="13" fill="#0a0a0a"/>
-        <circle cx="76" cy="74" r="10" fill="white"/>
-        <path d="M58 60 L68 68" stroke="white" stroke-width="12" stroke-linecap="round"/>
-      </svg>
+      <img src="./assets/q-logo-dark.jpg" alt="Q." width="68" height="68">
     </div>
     <div class="name">Lucas Quiles</div>
     <div class="title-line">Founder &middot; Quiles Studio</div>
