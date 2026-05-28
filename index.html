@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucas Quiles — Quiles Studio</title>
+<meta name="description" content="Lucas Quiles, Founder of Quiles Studio — AI-powered agents, automation, and full-stack engineering for growing businesses.">
+<meta property="og:title" content="Lucas Quiles — Quiles Studio">
+<meta property="og:description" content="AI agents, automation, and engineering for businesses that move fast.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://card.quiles.studio">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-hover: #141414;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.15);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.55);
+    --text-tertiary: rgba(255,255,255,0.35);
+    --accent: #ffffff;
+    --glow: rgba(255,255,255,0.04);
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Ambient background glow */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.015) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,255,255,0.01) 0%, transparent 50%);
+    pointer-events: none;
+    animation: ambientShift 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes ambientShift {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(2%, -2%) rotate(1deg); }
+  }
+
+  .card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.6s ease;
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+  }
+
+  /* Top shimmer line */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  /* ─── Header / Logo ─── */
+  .card-header {
+    padding: 44px 36px 28px;
+    text-align: center;
+    position: relative;
+  }
+
+  .logo-mark {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+
+  .logo-mark svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.06));
+    transition: filter 0.4s ease;
+  }
+
+  .card:hover .logo-mark svg {
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
+  }
+
+  .name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .title-line {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ─── Divider ─── */
+  .divider {
+    height: 1px;
+    margin: 0 36px;
+    background: var(--border);
+  }
+
+  /* ─── What We Do (tagline) ─── */
+  .tagline {
+    padding: 24px 36px;
+    text-align: center;
+  }
+
+  .tagline p {
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+  }
+
+  /* ─── Services ─── */
+  .services {
+    padding: 20px 36px 24px;
+  }
+
+  .services-label {
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .service-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .service-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .service-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    opacity: 0.35;
+  }
+
+  .service-content {
+    flex: 1;
+  }
+
+  .service-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+  }
+
+  .service-desc {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    line-height: 1.45;
+  }
+
+  /* ─── Contact Links ─── */
+  .contact {
+    padding: 8px 36px 16px;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+    border-bottom: 1px solid transparent;
+  }
+
+  .contact-item:hover {
+    color: var(--text-primary);
+  }
+
+  .contact-item:not(:last-child) {
+    border-bottom-color: var(--border);
+  }
+
+  .contact-icon {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+  }
+
+  .contact-item:hover .contact-icon {
+    opacity: 0.8;
+  }
+
+  .contact-text {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* ─── Footer ─── */
+  .card-footer {
+    padding: 16px 36px 24px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover {
+    background: rgba(255,255,255,0.88);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(255,255,255,0.08);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--glow);
+  }
+
+  .btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ─── Powered by badge ─── */
+  .powered-by {
+    text-align: center;
+    padding: 12px 0 4px;
+    font-size: 0.5625rem;
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .powered-by span {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 480px) {
+    body { padding: 16px; }
+    .card { border-radius: 16px; }
+    .card-header { padding: 32px 24px 22px; }
+    .logo-mark { width: 56px; height: 56px; margin-bottom: 20px; }
+    .name { font-size: 1.375rem; }
+    .tagline, .services, .contact, .card-footer { padding-left: 24px; padding-right: 24px; }
+    .divider { margin: 0 24px; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(0.97); }
+  }
+
+  .btn:active {
+    animation: pulse 0.2s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="logo-mark">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="42" cy="44" r="30" fill="white"/>
+        <circle cx="42" cy="44" r="13" fill="#0a0a0a"/>
+        <circle cx="76" cy="74" r="10" fill="white"/>
+        <path d="M58 60 L68 68" stroke="white" stroke-width="12" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="name">Lucas Quiles</div>
+    <div class="title-line">Founder &middot; Quiles Studio</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Value prop -->
+  <div class="tagline">
+    <p>We build and run AI agents that work alongside your team &mdash; automating operations, connecting systems, and handling the work that slows you down.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Services -->
+  <div class="services">
+    <div class="services-label">What we do</div>
+    <div class="service-list">
+
+      <div class="service-row">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a4 4 0 014 4v1a1 1 0 001 1h1a4 4 0 010 8h-1a1 1 0 00-1 1v1a4 4 0 01-8 0v-1a1 1 0 00-1-1H6a4 4 0 010-8h1a1 1 0 001-1V6a4 4 0 014-4z"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">AI Agents &mdash; Hosted or On-Premise</div>
+          <div class="service-desc">Custom agents that run in our cloud or deploy into your environment. Always-on, always working.</div>
+        </div>
+      </div>
+
+      <div class="service-row">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          <line x1="4" y1="4" x2="9" y2="9"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Automation &amp; Integration</div>
+          <div class="service-desc">Connect the tools your team already uses. Eliminate manual handoffs between systems.</div>
+        </div>
+      </div>
+
+      <div class="service-row">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Full-Stack Development</div>
+          <div class="service-desc">Web apps, APIs, dashboards, and internal tools &mdash; designed to scale with your business.</div>
+        </div>
+      </div>
+
+      <div class="service-row">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Infrastructure &amp; Security</div>
+          <div class="service-desc">Network architecture, cloud infrastructure, identity management, and compliance-ready security.</div>
+        </div>
+      </div>
+
+      <div class="service-row">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Consultation &amp; Support</div>
+          <div class="service-desc">Strategic guidance on AI adoption, architecture reviews, and hands-on technical support.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Contact -->
+  <div class="contact">
+    <a href="tel:+18459780919" class="contact-item">
+      <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+      </svg>
+      <div class="contact-text">(845) 978-0919</div>
+    </a>
+
+    <a href="mailto:Lucas@Quiles.studio" class="contact-item">
+      <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/>
+      </svg>
+      <div class="contact-text">Lucas@Quiles.studio</div>
+    </a>
+
+    <a href="https://quiles.studio" target="_blank" rel="noopener" class="contact-item">
+      <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+      </svg>
+      <div class="contact-text">Quiles.studio</div>
+    </a>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="card-footer">
+    <a href="#" class="btn btn-primary" id="saveContactBtn" onclick="saveContact(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v-2"/>
+        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+        <polyline points="17,21 17,13 7,13 7,21"/>
+        <polyline points="7,3 7,8 15,8"/>
+      </svg>
+      Save Contact
+    </a>
+    <a href="https://quiles.studio" target="_blank" rel="noopener" class="btn btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+        <polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+      Portfolio
+    </a>
+  </div>
+
+  <div class="powered-by">Powered by <span>Q.</span></div>
+
+</div>
+
+<script>
+function saveContact(e) {
+  e.preventDefault();
+  const vcard = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    'N:Quiles;Lucas;;;',
+    'FN:Lucas Quiles',
+    'ORG:Quiles Studio',
+    'TITLE:Founder',
+    'TEL;TYPE=CELL:+18459780919',
+    'EMAIL;TYPE=INTERNET:Lucas@Quiles.studio',
+    'URL:https://quiles.studio',
+    'NOTE:AI agents\\, automation\\, full-stack development\\, infrastructure & security',
+    'END:VCARD'
+  ].join('\n');
+  const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'Lucas-Quiles.vcf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+const card = document.getElementById('card');
+card.addEventListener('mousemove', (e) => {
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  card.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(255,255,255,0.02), var(--surface) 60%)`;
+});
+card.addEventListener('mouseleave', () => {
+  card.style.background = 'var(--surface)';
+});
+</script>
+
+</body>
+</html>
