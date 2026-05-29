@@ -240,6 +240,13 @@
 
   .service-content {
     flex: 1;
+    display: grid;
+    grid-template-rows: auto 0fr;
+    transition: grid-template-rows 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .service-row.active .service-content {
+    grid-template-rows: auto 1fr;
   }
 
   .service-name {
@@ -255,19 +262,15 @@
     font-weight: 400;
     color: var(--text-tertiary);
     line-height: 1.5;
-    max-height: 0;
+    min-height: 0;
+    padding-top: 4px;
+    overflow: clip;
     opacity: 0;
-    overflow: hidden;
-    transition: max-height 0.55s cubic-bezier(0.25, 0.1, 0.25, 1),
-                opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) 0.05s,
-                margin 0.45s cubic-bezier(0.25, 0.1, 0.25, 1);
-    margin-top: 0;
+    transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s;
   }
 
   .service-row.active .service-desc {
-    max-height: 120px;
     opacity: 1;
-    margin-top: 4px;
   }
 
   /* ─── Footer CTA ─── */
@@ -631,12 +634,18 @@ card.addEventListener('mouseleave', () => {
   card.style.background = 'var(--surface)';
 });
 
-// Scroll-driven accordion — buttery, hysteresis-damped
+// Scroll-driven accordion — zero-jitter, velocity-damped
 const serviceRows = document.querySelectorAll('.service-row');
 if (serviceRows.length) {
   serviceRows[0].classList.add('active');
   let activeRow = serviceRows[0];
   let scrollLocked = false;
+
+  // Lock container height after first paint to prevent downstream jitter
+  const serviceList = document.querySelector('.service-list');
+  requestAnimationFrame(() => {
+    serviceList.style.minHeight = serviceList.offsetHeight + 'px';
+  });
 
   serviceRows.forEach(row => {
     row.addEventListener('click', () => {
@@ -648,18 +657,30 @@ if (serviceRows.length) {
       } else {
         activeRow = null;
       }
-      // Brief lock so scroll doesn't fight the tap
       scrollLocked = true;
       setTimeout(() => { scrollLocked = false; }, 600);
     });
   });
 
   let ticking = false;
-  const HYSTERESIS = 55; // px — must beat current by this much to switch
+  const HYSTERESIS = 65;
+  let lastY = window.scrollY;
+  let lastT = performance.now();
+  let velocity = 0;
 
   window.addEventListener('scroll', () => {
     if (ticking || scrollLocked) return;
+
+    const now = performance.now();
+    const dt = now - lastT;
+    if (dt > 0) velocity = Math.abs(window.scrollY - lastY) / dt;
+    lastY = window.scrollY;
+    lastT = now;
+
     requestAnimationFrame(() => {
+      // Skip during fast scrolls — prevents flickering mid-flick
+      if (velocity > 1.8) { ticking = false; return; }
+
       const zone = window.innerHeight * 0.45;
       let closest = null, closestDist = Infinity;
       let activeDist = Infinity;
@@ -669,15 +690,11 @@ if (serviceRows.length) {
         const center = rect.top + rect.height / 2;
         const dist = Math.abs(center - zone);
         if (rect.top < window.innerHeight && rect.bottom > 0) {
-          if (dist < closestDist) {
-            closestDist = dist;
-            closest = row;
-          }
+          if (dist < closestDist) { closestDist = dist; closest = row; }
           if (row === activeRow) activeDist = dist;
         }
       });
 
-      // Only switch if the new candidate beats the current row by HYSTERESIS px
       if (closest && closest !== activeRow && (activeDist - closestDist) > HYSTERESIS) {
         serviceRows.forEach(r => r.classList.remove('active'));
         closest.classList.add('active');
