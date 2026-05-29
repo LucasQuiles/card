@@ -242,7 +242,8 @@
     flex: 1;
     display: grid;
     grid-template-rows: auto 0fr;
-    transition: grid-template-rows 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: grid-template-rows 0.55s cubic-bezier(0.22, 0.1, 0.25, 1);
+    will-change: grid-template-rows;
   }
 
   .service-row.active .service-content {
@@ -634,12 +635,13 @@ card.addEventListener('mouseleave', () => {
   card.style.background = 'var(--surface)';
 });
 
-// Scroll-driven accordion — zero-jitter, velocity-damped
+// Scroll-driven accordion — stable, velocity-damped, cooldown-gated
 const serviceRows = document.querySelectorAll('.service-row');
 if (serviceRows.length) {
   serviceRows[0].classList.add('active');
   let activeRow = serviceRows[0];
   let scrollLocked = false;
+  let switchCooldown = false;
 
   // Lock container height after first paint to prevent downstream jitter
   const serviceList = document.querySelector('.service-list');
@@ -658,32 +660,42 @@ if (serviceRows.length) {
         activeRow = null;
       }
       scrollLocked = true;
+      switchCooldown = true;
       setTimeout(() => { scrollLocked = false; }, 600);
+      setTimeout(() => { switchCooldown = false; }, 400);
     });
   });
 
   let ticking = false;
-  const HYSTERESIS = 65;
+  const HYSTERESIS = 75;
+  const VELOCITY_CAP = 2.0;
+  const SWITCH_COOLDOWN_MS = 280;
+
+  // Exponential moving average for scroll velocity — smooths out single-frame spikes
+  let emaVelocity = 0;
   let lastY = window.scrollY;
   let lastT = performance.now();
-  let velocity = 0;
 
   window.addEventListener('scroll', () => {
     if (ticking || scrollLocked) return;
 
     const now = performance.now();
     const dt = now - lastT;
-    if (dt > 0) velocity = Math.abs(window.scrollY - lastY) / dt;
+    if (dt > 0) {
+      const instantV = Math.abs(window.scrollY - lastY) / dt;
+      emaVelocity = emaVelocity * 0.55 + instantV * 0.45;
+    }
     lastY = window.scrollY;
     lastT = now;
 
     requestAnimationFrame(() => {
-      // Skip during fast scrolls — prevents flickering mid-flick
-      if (velocity > 1.8) { ticking = false; return; }
+      // Skip during fast scrolls or within cooldown window
+      if (emaVelocity > VELOCITY_CAP || switchCooldown) { ticking = false; return; }
 
       const zone = window.innerHeight * 0.45;
       let closest = null, closestDist = Infinity;
       let activeDist = Infinity;
+      let activeVisible = false;
 
       serviceRows.forEach(row => {
         const rect = row.getBoundingClientRect();
@@ -691,14 +703,19 @@ if (serviceRows.length) {
         const dist = Math.abs(center - zone);
         if (rect.top < window.innerHeight && rect.bottom > 0) {
           if (dist < closestDist) { closestDist = dist; closest = row; }
-          if (row === activeRow) activeDist = dist;
+          if (row === activeRow) { activeDist = dist; activeVisible = true; }
         }
       });
 
-      if (closest && closest !== activeRow && (activeDist - closestDist) > HYSTERESIS) {
+      // Switch when: closest differs from active AND
+      // (active scrolled off-screen OR distance gap exceeds hysteresis)
+      if (closest && closest !== activeRow &&
+          (!activeVisible || (activeDist - closestDist) > HYSTERESIS)) {
         serviceRows.forEach(r => r.classList.remove('active'));
         closest.classList.add('active');
         activeRow = closest;
+        switchCooldown = true;
+        setTimeout(() => { switchCooldown = false; }, SWITCH_COOLDOWN_MS);
       }
       ticking = false;
     });
