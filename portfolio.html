@@ -8,11 +8,19 @@
 <meta property="og:title" content="Portfolio — Quiles Studio">
 <meta property="og:description" content="AI agents, orchestration platforms, and engineering tools built by Quiles Studio.">
 <meta property="og:type" content="website">
+<meta name="theme-color" content="#000000">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  ::selection { background: rgba(255,255,255,0.18); color: #fff; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
   :root {
     --bg: #000000;
@@ -95,6 +103,7 @@
   }
 
   .page-title {
+    font-family: 'Outfit', 'Inter', sans-serif;
     font-size: 2rem;
     font-weight: 600;
     letter-spacing: -0.03em;
@@ -139,7 +148,7 @@
     overflow: hidden;
     transition: border-color 0.4s ease, transform 0.3s ease, box-shadow 0.4s ease, background 0.6s ease;
     position: relative;
-    animation: fadeUp 0.5s ease both;
+    opacity: 0; transform: translateY(12px);
   }
 
   .project-card:hover {
@@ -158,9 +167,9 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .projects .project-card:nth-child(1) { animation-delay: 0.05s; }
-  .projects .project-card:nth-child(2) { animation-delay: 0.1s; }
-  .projects .project-card:nth-child(3) { animation-delay: 0.15s; }
+  .project-card.visible {
+    animation: fadeUp 0.5s ease forwards;
+  }
 
   .project-card::before {
     content: '';
@@ -236,6 +245,7 @@
   .project-card:hover .mark-infra { box-shadow: 0 0 16px rgba(16,185,129,0.15); }
 
   .project-name {
+    font-family: 'Outfit', 'Inter', sans-serif;
     font-size: 1.125rem;
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -363,6 +373,7 @@
   }
 
   .footer-cta {
+    font-family: 'Outfit', 'Inter', sans-serif;
     font-size: 1.25rem;
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -494,6 +505,13 @@
   .powered-by span {
     font-weight: 600;
     color: var(--text-secondary);
+  }
+
+  /* ─── Focus ─── */
+  a:focus-visible, button:focus-visible, .btn:focus-visible {
+    outline: 2px solid rgba(255,255,255,0.3);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 
   /* ─── Responsive ─── */
@@ -674,7 +692,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">Multiplies development throughput by running up to 8 AI coding agents simultaneously on different parts of the same project. A lead agent breaks down the work, assigns tasks, and reassigns failures automatically &mdash; delivering in hours what would take a team days.</p>
+      <p class="project-desc">Runs up to 8 AI coding agents in parallel on different parts of the same project. A lead agent breaks down the work, assigns tasks, and reassigns failures automatically &mdash; multiplying throughput without multiplying headcount.</p>
       <div class="project-metrics">
         <div class="metric"><span class="metric-val">8</span><span class="metric-label">parallel workers</span></div>
         <div class="metric"><span class="metric-val">SQLite WAL</span><span class="metric-label">task DAG</span></div>
@@ -897,7 +915,7 @@
           </div>
         </div>
       </div>
-      <p class="project-desc">New hardware goes from unboxed to production-ready in minutes &mdash; workstations, servers, and single-board computers alike. One command handles network enrollment, security configuration, service deployment, and monitoring setup across macOS, Linux, Windows, Raspberry Pi, and ESP32 edge nodes.</p>
+      <p class="project-desc">Takes new hardware from unboxed to production-ready &mdash; workstations, servers, and single-board computers alike. One command handles network enrollment, security configuration, service deployment, and monitoring setup across macOS, Linux, Windows, Raspberry Pi, and ESP32 edge nodes.</p>
       <div class="project-tech">
         <span class="tech-tag">Bash</span>
         <span class="tech-tag">PowerShell</span>
@@ -950,6 +968,21 @@
 </footer>
 
 <script>
+// Scroll-triggered card reveals
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const siblings = [...entry.target.parentElement.children].filter(c => c.classList.contains('project-card'));
+      const idx = siblings.indexOf(entry.target);
+      entry.target.style.animationDelay = `${idx * 0.08}s`;
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.05 });
+document.querySelectorAll('.project-card').forEach(card => observer.observe(card));
+
+// Mouse-follow gradient
 document.querySelectorAll('.project-card').forEach(card => {
   card.addEventListener('mousemove', (e) => {
     const rect = card.getBoundingClientRect();
