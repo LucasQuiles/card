@@ -692,7 +692,33 @@ if (serviceRows.length) {
       // Skip during fast scrolls or within cooldown window
       if (emaVelocity > VELOCITY_CAP || switchCooldown) { ticking = false; return; }
 
-      const zone = window.innerHeight * 0.45;
+      // Dynamic zone — shifts toward scroll edges so first/last rows are reachable
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollRatio = maxScroll > 0 ? Math.min(window.scrollY / maxScroll, 1) : 0;
+      const zone = window.innerHeight * (0.3 + scrollRatio * 0.3);
+
+      // Boundary snap — at scroll extremes, prefer edge rows
+      const EDGE_PX = 40;
+      const firstRow = serviceRows[0];
+      const lastRow = serviceRows[serviceRows.length - 1];
+
+      if (window.scrollY <= EDGE_PX && activeRow !== firstRow) {
+        serviceRows.forEach(r => r.classList.remove('active'));
+        firstRow.classList.add('active');
+        activeRow = firstRow;
+        switchCooldown = true;
+        setTimeout(() => { switchCooldown = false; }, SWITCH_COOLDOWN_MS);
+        ticking = false; return;
+      }
+      if (maxScroll > 0 && window.scrollY >= maxScroll - EDGE_PX && activeRow !== lastRow) {
+        serviceRows.forEach(r => r.classList.remove('active'));
+        lastRow.classList.add('active');
+        activeRow = lastRow;
+        switchCooldown = true;
+        setTimeout(() => { switchCooldown = false; }, SWITCH_COOLDOWN_MS);
+        ticking = false; return;
+      }
+
       let closest = null, closestDist = Infinity;
       let activeDist = Infinity;
       let activeVisible = false;
