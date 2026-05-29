@@ -184,27 +184,27 @@
   .service-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0;
   }
 
   .service-row {
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    padding: 12px 10px;
-    border: 1px solid transparent;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
     cursor: pointer;
-    border-radius: 8px;
-    margin: 0 -10px;
     transition: background 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-                padding 0.45s cubic-bezier(0.22, 0.1, 0.25, 1),
-                border-color 0.45s ease;
+                padding 0.45s cubic-bezier(0.22, 0.1, 0.25, 1);
   }
 
   .service-row.active {
     background: rgba(255,255,255,0.03);
-    padding: 14px 10px 16px;
-    border-color: var(--border);
+    padding: 14px 0 16px;
+  }
+
+  .service-row:last-child {
+    border-bottom: none;
   }
 
   .service-row::after {
@@ -681,15 +681,25 @@ if (serviceRows.length) {
         ? (actMax - actBase) / (serviceRows.length - 1)
         : 0;
 
-      serviceRows.forEach((row, i) => {
-        const rect = row.getBoundingClientRect();
+      // Cascade frontier — enforce strict sequential ordering
+      let frontier = -1;
+      for (let i = 0; i < serviceRows.length; i++) {
+        const rect = serviceRows[i].getBoundingClientRect();
         const rowMid = rect.top + rect.height / 2;
-        const isActive = row.classList.contains('active');
+        const isActive = serviceRows[i].classList.contains('active');
         const line = actBase + actStep * i;
+        // Hysteresis: harder to deactivate than to activate
+        if (rowMid < (isActive ? line + BUFFER : line - BUFFER)) {
+          frontier = i;
+        } else {
+          break; // cascade: no skipping rows
+        }
+      }
 
-        if (!isActive && rowMid < line - BUFFER) {
+      serviceRows.forEach((row, i) => {
+        if (i <= frontier) {
           row.classList.add('active');
-        } else if (isActive && rowMid > line + BUFFER) {
+        } else {
           row.classList.remove('active');
         }
       });
