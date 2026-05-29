@@ -184,7 +184,7 @@
   .service-list {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 6px;
   }
 
   .service-row {
@@ -192,19 +192,19 @@
     align-items: flex-start;
     gap: 14px;
     padding: 12px 10px;
-    border-bottom: 1px solid var(--border);
+    border: 1px solid transparent;
     cursor: pointer;
     border-radius: 8px;
     margin: 0 -10px;
-    transition: background 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-  }
-
-  .service-row:last-child {
-    border-bottom: none;
+    transition: background 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+                padding 0.45s cubic-bezier(0.22, 0.1, 0.25, 1),
+                border-color 0.45s ease;
   }
 
   .service-row.active {
     background: rgba(255,255,255,0.03);
+    padding: 14px 10px 16px;
+    border-color: var(--border);
   }
 
   .service-row::after {
