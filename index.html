@@ -674,17 +674,22 @@ if (serviceRows.length) {
     requestAnimationFrame(() => {
       if (emaVelocity > VELOCITY_CAP) { ticking = false; return; }
 
-      // Activation line — rows whose center is above this open, below it close
-      const activationLine = window.innerHeight * 0.55;
+      // Graduated activation — first row triggers at 55% viewport, last at 85%
+      const actBase = window.innerHeight * 0.55;
+      const actMax  = window.innerHeight * 0.85;
+      const actStep = serviceRows.length > 1
+        ? (actMax - actBase) / (serviceRows.length - 1)
+        : 0;
 
-      serviceRows.forEach(row => {
+      serviceRows.forEach((row, i) => {
         const rect = row.getBoundingClientRect();
         const rowMid = rect.top + rect.height / 2;
         const isActive = row.classList.contains('active');
+        const line = actBase + actStep * i;
 
-        if (!isActive && rowMid < activationLine - BUFFER) {
+        if (!isActive && rowMid < line - BUFFER) {
           row.classList.add('active');
-        } else if (isActive && rowMid > activationLine + BUFFER) {
+        } else if (isActive && rowMid > line + BUFFER) {
           row.classList.remove('active');
         }
       });
