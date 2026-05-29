@@ -635,43 +635,26 @@ card.addEventListener('mouseleave', () => {
   card.style.background = 'var(--surface)';
 });
 
-// Scroll-driven accordion — stable, velocity-damped, cooldown-gated
+// Scroll-driven cascade — rows expand sequentially on scroll down, collapse in reverse on scroll up
 const serviceRows = document.querySelectorAll('.service-row');
 if (serviceRows.length) {
   serviceRows[0].classList.add('active');
-  let activeRow = serviceRows[0];
   let scrollLocked = false;
-  let switchCooldown = false;
 
-  // Lock container height after first paint to prevent downstream jitter
-  const serviceList = document.querySelector('.service-list');
-  requestAnimationFrame(() => {
-    serviceList.style.minHeight = serviceList.offsetHeight + 'px';
-  });
-
+  // Click toggles individual row independent of scroll state
   serviceRows.forEach(row => {
     row.addEventListener('click', () => {
-      const wasActive = row.classList.contains('active');
-      serviceRows.forEach(r => r.classList.remove('active'));
-      if (!wasActive) {
-        row.classList.add('active');
-        activeRow = row;
-      } else {
-        activeRow = null;
-      }
+      row.classList.toggle('active');
       scrollLocked = true;
-      switchCooldown = true;
       setTimeout(() => { scrollLocked = false; }, 600);
-      setTimeout(() => { switchCooldown = false; }, 400);
     });
   });
 
   let ticking = false;
-  const HYSTERESIS = 75;
-  const VELOCITY_CAP = 2.0;
-  const SWITCH_COOLDOWN_MS = 280;
+  const VELOCITY_CAP = 2.5;
+  const BUFFER = 25; // hysteresis to prevent flicker at boundary
 
-  // Exponential moving average for scroll velocity — smooths out single-frame spikes
+  // EMA velocity smoothing
   let emaVelocity = 0;
   let lastY = window.scrollY;
   let lastT = performance.now();
@@ -689,60 +672,23 @@ if (serviceRows.length) {
     lastT = now;
 
     requestAnimationFrame(() => {
-      // Skip during fast scrolls or within cooldown window
-      if (emaVelocity > VELOCITY_CAP || switchCooldown) { ticking = false; return; }
+      if (emaVelocity > VELOCITY_CAP) { ticking = false; return; }
 
-      // Dynamic zone — shifts toward scroll edges so first/last rows are reachable
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollRatio = maxScroll > 0 ? Math.min(window.scrollY / maxScroll, 1) : 0;
-      const zone = window.innerHeight * (0.3 + scrollRatio * 0.3);
-
-      // Boundary snap — at scroll extremes, prefer edge rows
-      const EDGE_PX = 40;
-      const firstRow = serviceRows[0];
-      const lastRow = serviceRows[serviceRows.length - 1];
-
-      if (window.scrollY <= EDGE_PX && activeRow !== firstRow) {
-        serviceRows.forEach(r => r.classList.remove('active'));
-        firstRow.classList.add('active');
-        activeRow = firstRow;
-        switchCooldown = true;
-        setTimeout(() => { switchCooldown = false; }, SWITCH_COOLDOWN_MS);
-        ticking = false; return;
-      }
-      if (maxScroll > 0 && window.scrollY >= maxScroll - EDGE_PX && activeRow !== lastRow) {
-        serviceRows.forEach(r => r.classList.remove('active'));
-        lastRow.classList.add('active');
-        activeRow = lastRow;
-        switchCooldown = true;
-        setTimeout(() => { switchCooldown = false; }, SWITCH_COOLDOWN_MS);
-        ticking = false; return;
-      }
-
-      let closest = null, closestDist = Infinity;
-      let activeDist = Infinity;
-      let activeVisible = false;
+      // Activation line — rows whose center is above this open, below it close
+      const activationLine = window.innerHeight * 0.55;
 
       serviceRows.forEach(row => {
         const rect = row.getBoundingClientRect();
-        const center = rect.top + rect.height / 2;
-        const dist = Math.abs(center - zone);
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-          if (dist < closestDist) { closestDist = dist; closest = row; }
-          if (row === activeRow) { activeDist = dist; activeVisible = true; }
+        const rowMid = rect.top + rect.height / 2;
+        const isActive = row.classList.contains('active');
+
+        if (!isActive && rowMid < activationLine - BUFFER) {
+          row.classList.add('active');
+        } else if (isActive && rowMid > activationLine + BUFFER) {
+          row.classList.remove('active');
         }
       });
 
-      // Switch when: closest differs from active AND
-      // (active scrolled off-screen OR distance gap exceeds hysteresis)
-      if (closest && closest !== activeRow &&
-          (!activeVisible || (activeDist - closestDist) > HYSTERESIS)) {
-        serviceRows.forEach(r => r.classList.remove('active'));
-        closest.classList.add('active');
-        activeRow = closest;
-        switchCooldown = true;
-        setTimeout(() => { switchCooldown = false; }, SWITCH_COOLDOWN_MS);
-      }
       ticking = false;
     });
     ticking = true;
