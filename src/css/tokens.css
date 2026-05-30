@@ -71,4 +71,30 @@
   --op-muted: 0.55;
   --op-subtle: 0.35;
   --op-faint: 0.08;
+
+  /* ── Component support (promoted from index.html .card/.service-row/
+     .quick-action literals; exact source values, no visual change) ── */
+
+  /* Sizes that don't fit the 4px spacing scale */
+  --card-max-width: 440px;    /* .card max-width */
+  --size-icon-sm: 18px;       /* .service-icon w/h */
+  --size-icon-md: 20px;       /* .quick-action svg w/h */
+  --size-action: 52px;        /* .quick-action w/h */
+  --space-px: 1px;            /* sub-grid nudge (icon margin-top) */
+  --space-0_5: 2px;           /* sub-grid nudge (label/name margins, row ::after) */
+  --space-2_5: 10px;          /* .service-row padding-x / margin / .card-footer gap */
+  --space-3_5: 14px;          /* .service-row gap / .quick-action border-radius / active padding-x */
+  --space-9: 36px;            /* quick-actions / footer-cta horizontal padding */
+
+  /* Surface tints layered over --surface (white alpha overlays) */
+  --tint-03: rgba(255, 255, 255, 0.03);   /* service-row.active bg / inset highlight */
+  --tint-06: rgba(255, 255, 255, 0.06);   /* service-row.active border */
+  --tint-08: rgba(255, 255, 255, 0.08);   /* quick-action:hover bg (value == --border, but bg role) */
+  --tint-12: rgba(255, 255, 255, 0.12);   /* shimmer-line stop / quick-action:active bg */
+
+  /* Composite box-shadows (full source values; geometry+color promoted as a unit
+     since blur/offset px do not map onto the spacing scale) */
+  --shadow-card-hover: 0 12px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-row-active: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-action-hover: 0 4px 16px rgba(0, 0, 0, 0.3);
 }

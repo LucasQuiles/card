@@ -1,0 +1,205 @@
+/* components.css — shared structural components.
+   Loaded after base.css. Transcribed verbatim from index.html; raw literals
+   tokenized per the design-system policy (tokens.css is the only SSOT).
+
+   NOTE on the mouse-follow glow: in source it is NOT a CSS rule — it is applied
+   imperatively in JS (index.html:641-649 / portfolio.html:1003-1010) by writing
+   `card.style.background` to an inline radial-gradient. There is no `--mx`/`--my`
+   CSS layer to extract. That JS contract is handled by a later mouse-follow task;
+   the .card resting background (var(--surface)) below is what JS restores on
+   mouseleave. */
+
+/* ─── Card (merged from the two split index.html blocks: 69 + 71-80) ─── */
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--card-max-width);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.6s ease, box-shadow 0.4s ease, background 0.6s ease;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Top shimmer line */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--space-px);
+  background: linear-gradient(90deg, transparent, var(--tint-12), transparent);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.card:hover::before { opacity: 1; }
+
+/* ─── Service rows ─── */
+.service-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3_5);
+  padding: var(--space-3) var(--space-2_5);
+  margin: 0 calc(-1 * var(--space-2_5));
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+              padding 0.45s cubic-bezier(0.22, 0.1, 0.25, 1),
+              border-color 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+              box-shadow 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.service-row + .service-row {
+  margin-top: var(--space-1);
+}
+
+.service-row.active {
+  background: var(--tint-03);
+  border-color: var(--tint-06);
+  padding: var(--space-3_5) var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-row-active);
+}
+
+.service-row::after {
+  content: '+';
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: var(--fw-regular);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: var(--space-0_5);
+  transition: color 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.service-row.active::after {
+  content: '\2212';
+  color: var(--text-secondary);
+}
+
+.service-icon {
+  width: var(--size-icon-sm);
+  height: var(--size-icon-sm);
+  flex-shrink: 0;
+  margin-top: var(--space-px);
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+
+.service-row:hover .service-icon,
+.service-row.active .service-icon {
+  opacity: 0.55;
+}
+
+.service-content {
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto 0fr;
+  transition: grid-template-rows 0.55s cubic-bezier(0.22, 0.1, 0.25, 1);
+  will-change: grid-template-rows;
+}
+
+.service-row.active .service-content {
+  grid-template-rows: auto 1fr;
+}
+
+.service-name {
+  font-size: 0.8125rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-0_5);
+}
+
+.service-desc {
+  font-size: 0.75rem;
+  font-weight: var(--fw-regular);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  min-height: 0;
+  padding-top: var(--space-1);
+  overflow: clip;
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s;
+}
+
+.service-row.active .service-desc {
+  opacity: 1;
+}
+
+/* ─── Quick actions ─── */
+.quick-actions {
+  padding: var(--space-4) var(--space-9) var(--space-5);
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.quick-action {
+  width: var(--size-action);
+  height: var(--size-action);
+  border-radius: 14px;
+  background: var(--glow);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.quick-action:hover {
+  background: var(--tint-08);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  transform: translateY(calc(-1 * var(--space-0_5)));
+  box-shadow: var(--shadow-action-hover);
+}
+
+.quick-action:active {
+  transform: translateY(0);
+  background: var(--tint-12);
+  transition-duration: 0.1s;
+}
+
+.quick-action svg {
+  width: var(--size-icon-md);
+  height: var(--size-icon-md);
+}
+
+.quick-action-label {
+  position: absolute;
+  bottom: calc(-1 * var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5625rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ─── Powered-by ─── */
+.powered-by {
+  text-align: center;
+  padding: var(--space-3) 0 var(--space-5);
+  font-size: 0.5625rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.powered-by span {
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+}
