@@ -1,11 +1,15 @@
 // contact.js — vCard download. Photo fetched from asset (was inline base64).
+// The asset is imported so Vite bundles + hashes it and resolves the base-prefixed
+// URL at build time (a runtime string path would not survive the build / would 404).
+import photoUrl from '../assets/q-contact-photo.jpg';
+
 export function init(btnSelector = '#saveContactBtn') {
   const btn = document.querySelector(btnSelector);
   if (btn) btn.addEventListener('click', saveContact);
 }
 async function saveContact(e) {
   e.preventDefault();
-  const res = await fetch('assets/q-contact-photo.jpg');
+  const res = await fetch(photoUrl);
   const blob = await res.blob();
   const dataUrl = await new Promise((resolve) => {
     const reader = new FileReader();
