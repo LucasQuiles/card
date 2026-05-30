@@ -9,7 +9,7 @@
   --border-hover: rgb(255 255 255 / 15%);
   --text-primary: #fff;
   --text-secondary: rgb(255 255 255 / 55%);
-  --text-tertiary: rgb(255 255 255 / 35%);
+  --text-tertiary: rgb(255 255 255 / 48%);   /* WCAG AA: 0.35→0.48 clears 4.5:1 on dark bg, stays dimmer than secondary */
   --accent: #fff;
   --glow: rgb(255 255 255 / 4%);
   --selection: rgb(255 255 255 / 18%);
