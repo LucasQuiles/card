@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucas Quiles — Quiles Studio</title>
+<meta name="description" content="Lucas Quiles, Founder of Quiles Studio — AI-powered agents, automation, and full-stack engineering for growing businesses.">
+<meta property="og:title" content="Lucas Quiles — Quiles Studio">
+<meta property="og:description" content="AI agents, automation, and engineering for businesses that move fast.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://card.quiles.studio">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+<canvas id="ambient-canvas"></canvas>
+
+<div class="card" id="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="logo-mark">
+      <img src="./assets/q-logo-dark-transparent.png" alt="Q." width="136" height="136">
+    </div>
+    <h1 class="name">Lucas Quiles</h1>
+    <div class="title-line">Founder &middot; Quiles Studio</div>
+  </div>
+
+  <!-- Quick Actions -->
+  <%- quickActions %>
+
+  <div class="divider"></div>
+
+  <!-- Value prop -->
+  <div class="tagline">
+    <p>Off-the-shelf software is the problem, not the solution. The companies pulling ahead aren&rsquo;t buying more subscriptions &mdash; they&rsquo;re building custom, with engineers and agents deployed directly into their operations.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Services -->
+  <div class="services">
+    <div class="services-label">What we do</div>
+    <div class="service-list">
+
+      <button class="service-row" type="button" aria-expanded="false">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a4 4 0 014 4v1a1 1 0 001 1h1a4 4 0 010 8h-1a1 1 0 00-1 1v1a4 4 0 01-8 0v-1a1 1 0 00-1-1H6a4 4 0 010-8h1a1 1 0 001-1V6a4 4 0 014-4z"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Forward-Deployed Agents</div>
+          <div class="service-desc">Engineers and AI agents deployed directly within your operations &mdash; working alongside your teams, not from the outside looking in. Locally managed, cloud, or on-premise <em>solutions available.</em></div>
+        </div>
+      </button>
+
+      <button class="service-row" type="button" aria-expanded="false">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          <line x1="4" y1="4" x2="9" y2="9"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Systems Integration</div>
+          <div class="service-desc">Not another SaaS. Not another dashboard. We build the connective layer that gives your existing tools a shared <em>knowledge layer</em> and your agents a working memory &mdash; one brain across your entire operation, and one agentic experience across all of your sessions.</div>
+        </div>
+      </button>
+
+      <button class="service-row" type="button" aria-expanded="false">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Custom Software</div>
+          <div class="service-desc">If you&rsquo;re running the same software as your competitors, you don&rsquo;t have an edge. We fill the gaps in your existing tools and build proprietary solutions shaped to how your business actually operates.</div>
+        </div>
+      </button>
+
+      <button class="service-row" type="button" aria-expanded="false">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Infrastructure &amp; Security</div>
+          <div class="service-desc">Cloud, network, identity, compliance &mdash; sized to what your business actually needs. Not what a vendor decided to bundle into their most expensive plan.</div>
+        </div>
+      </button>
+
+      <button class="service-row" type="button" aria-expanded="false">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        <div class="service-content">
+          <div class="service-name">Continued Support</div>
+          <div class="service-desc">We work alongside your team &mdash; not from a ticket queue. A deployed engineer means someone available to own the strategy, architecture decisions, and the technical judgment that comes from being in the room and on the call.</div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <div class="footer-cta-section">
+    <div class="footer-cta">Let's build something.</div>
+    <p class="footer-text">We embed with your team to build AI agents, internal tools, and the infrastructure behind them. No handoffs, no templates&mdash;just working software shaped to how you operate.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Action buttons -->
+  <div class="card-footer">
+    <a href="#" class="btn btn-primary" id="saveContactBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <circle cx="9" cy="11" r="2.5"/>
+        <path d="M5 18c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5"/>
+        <line x1="16" y1="9" x2="20" y2="9"/>
+        <line x1="16" y1="13" x2="19" y2="13"/>
+      </svg>
+      Save Contact
+    </a>
+    <a href="./portfolio.html" class="btn btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+      Portfolio
+    </a>
+  </div>
+
+  <%- poweredBy %>
+
+</div>
+
+
+<script type="module" src="js/index.entry.js"></script>
+</body>
+</html>
+

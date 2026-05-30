@@ -7,13 +7,19 @@ export function init() {
   const serviceRows = document.querySelectorAll('.service-row');
   if (!serviceRows.length) return;
 
+  const syncExpanded = (el) => {
+    el.setAttribute('aria-expanded', el.classList.contains('active') ? 'true' : 'false');
+  };
+
   serviceRows[0].classList.add('active');
+  serviceRows.forEach(syncExpanded);
   let scrollLocked = false;
 
   // Click toggles individual row independent of scroll state
   serviceRows.forEach((row) => {
     row.addEventListener('click', () => {
       row.classList.toggle('active');
+      syncExpanded(row);
       scrollLocked = true;
       setTimeout(() => { scrollLocked = false; }, 600);
     });
@@ -73,6 +79,7 @@ export function init() {
         } else {
           row.classList.remove('active');
         }
+        syncExpanded(row);
       });
 
       ticking = false;
