@@ -1,6 +1,7 @@
 /* base.css — reset, document defaults, shared a11y primitives.
    Loaded after tokens.css, before components.css.
-   Transcribed from index.html / portfolio.html (identical in both). */
+   Transcribed from index.html / portfolio.html (identical in both);
+   per-page literals promoted to tokens.css for SSOT (no visual change). */
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -25,16 +26,16 @@ body {
 
 ::selection { background: var(--selection); color: var(--text-primary); }
 
-/* Scrollbar (was duplicated in both pages). Raw values have no matching
-   token (0.1 alpha, 3px radius are page-specific constants), kept faithful.
-   :hover thumb (rgba(255,255,255,0.2)) intentionally omitted — no token. */
-::-webkit-scrollbar { width: 6px; }
+/* Scrollbar (was duplicated in both pages). border-radius px is a UI constant
+   (whitelisted by Stylelint); colors/width flow from tokens.css. */
+::-webkit-scrollbar { width: var(--scrollbar-width); }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
 /* Focus ring (was duplicated in both pages). */
 a:focus-visible, button:focus-visible, .btn:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.3);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -47,6 +48,12 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
     animation-iteration-count: 1 !important;
     /* stylelint-disable-next-line declaration-no-important */
     transition-duration: 0.01ms !important;
+  }
+
+  /* Neutralize html{scroll-behavior:smooth} under reduced-motion (a11y). */
+  html {
+    /* stylelint-disable-next-line declaration-no-important */
+    scroll-behavior: auto !important;
   }
 }
 

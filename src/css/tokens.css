@@ -14,6 +14,13 @@
   --glow: rgba(255, 255, 255, 0.04);
   --selection: rgba(255, 255, 255, 0.18);
 
+  /* UI chrome — promoted from per-page literals to keep base.css raw-value-free
+     while preserving exact source rendering (no visual change). */
+  --scrollbar-width: 6px;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  --focus-ring: rgba(255, 255, 255, 0.3);
+
   /* Project-accent colors (portfolio gradients) */
   --accent-indigo: rgb(99, 102, 241);
   --accent-violet: rgb(139, 92, 246);
