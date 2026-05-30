@@ -80,6 +80,7 @@
   --size-icon-sm: 18px;       /* .service-icon w/h */
   --size-icon-md: 20px;       /* .quick-action svg w/h */
   --size-action: 52px;        /* .quick-action w/h */
+  --size-action-sm: 48px;     /* .quick-action w/h @max-width:480px (portfolio) */
   --space-px: 1px;            /* sub-grid nudge (icon margin-top) */
   --space-0_5: 2px;           /* sub-grid nudge (label/name margins, row ::after) */
   --space-1_5: 6px;           /* sub-grid nudge (.name margin-bottom) */

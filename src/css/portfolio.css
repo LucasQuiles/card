@@ -443,6 +443,8 @@ body::before {
   .page-logo { width: var(--size-logo-sm); height: var(--size-logo-sm); margin-bottom: var(--space-3); }
   .project-metrics { gap: var(--space-3_5); }
   .project-mark { width: var(--size-project-mark-sm); height: var(--size-project-mark-sm); border-radius: 10px; }
-  .project-mark svg { width: 18px; height: 18px; }
+  .project-mark svg { width: var(--size-icon-sm); height: var(--size-icon-sm); }
   .project-header { gap: var(--space-3); }
+  .quick-actions { gap: var(--space-2_5); }
+  .quick-action { width: var(--size-action-sm); height: var(--size-action-sm); border-radius: var(--radius-md); }
 }
