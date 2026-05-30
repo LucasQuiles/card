@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint:css": "stylelint \"src/css/**/*.css\"",
-    "a11y": "axe http://localhost:4173/card/ http://localhost:4173/card/portfolio.html --exit"
+    "a11y": "axe http://localhost:4173/card/ http://localhost:4173/card/portfolio.html --exit",
+    "deploy": "bash scripts/deploy.sh"
   },
   "devDependencies": {
     "vite": "^5.4.0",
