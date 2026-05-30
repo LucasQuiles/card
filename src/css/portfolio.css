@@ -1,6 +1,6 @@
 /* portfolio.css — portfolio.html-only visual rules.
    Loaded after components.css. Transcribed verbatim from portfolio.html's
-   <style> (lines 16-547); raw color/gradient/shadow literals tokenized per the
+   \3c style> (lines 16-547); raw color/gradient/shadow literals tokenized per the
    design-system policy (tokens.css is the only SSOT). Rules already extracted
    to base.css (reset, ::selection, scrollbar, html, body, focus-visible,
    prefers-reduced-motion, .sr-only) or components.css (.quick-action family,
@@ -9,8 +9,8 @@
    tokens.css.
 
    Reveal contract: the fade-in animation targets `.project-card.visible`
-   (keyframes `fadeUp`). A later reveal.js task adds/removes `.visible`.
-   Ambient background keyframes: `ambientShift`.
+   (keyframes `fade-up`). A later reveal.js task adds/removes `.visible`.
+   Ambient background keyframes: `ambient-shift`.
 
    Deviation from source, per the design-system spec: 'Outfit' headings
    (.page-title, .project-name, .footer-cta) drop to var(--font-sans) (Inter). */
@@ -26,10 +26,10 @@ body::before {
   background: radial-gradient(ellipse at 30% 20%, var(--ambient-glow-1) 0%, transparent 50%),
               radial-gradient(ellipse at 70% 80%, var(--ambient-glow-2) 0%, transparent 50%);
   pointer-events: none;
-  animation: ambientShift 20s ease-in-out infinite alternate;
+  animation: ambient-shift 20s ease-in-out infinite alternate;
 }
 
-@keyframes ambientShift {
+@keyframes ambient-shift {
   0% { transform: translate(0, 0) rotate(0deg); }
   100% { transform: translate(2%, -2%) rotate(1deg); }
 }
@@ -57,7 +57,7 @@ body::before {
 
 .back-link:hover { color: var(--text-secondary); }
 .back-link:active { color: var(--text-primary); }
-.back-link svg { width: 14px; height: 14px; transition: transform 0.3s ease; }
+.back-link svg { width: var(--size-btn-icon); height: var(--size-btn-icon); transition: transform 0.3s ease; }
 .back-link:hover svg { transform: translateX(-3px); }
 
 /* Outfit → var(--font-sans): deliberate Outfit drop (page-title below). */
@@ -140,14 +140,14 @@ body::before {
   transition-duration: 0.1s;
 }
 
-@keyframes fadeUp {
+@keyframes fade-up {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* Reveal contract: reveal.js toggles `.visible` to trigger this animation. */
 .project-card.visible {
-  animation: fadeUp 0.5s ease forwards;
+  animation: fade-up 0.5s ease forwards;
 }
 
 .project-card::before {
@@ -156,7 +156,7 @@ body::before {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: var(--space-px);
   background: linear-gradient(90deg, transparent, var(--tint-10), transparent);
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -338,7 +338,7 @@ body::before {
 
 .project-link:hover { color: var(--text-secondary); }
 .project-link:hover svg { transform: translate(2px, -2px); }
-.project-link svg { width: 10px; height: 10px; transition: transform 0.3s ease; }
+.project-link svg { width: var(--size-icon-xs); height: var(--size-icon-xs); transition: transform 0.3s ease; }
 
 /* ─── Footer ─── */
 .page-footer {
@@ -349,7 +349,7 @@ body::before {
 }
 
 .footer-divider {
-  height: 1px;
+  height: var(--space-px);
   background: var(--border);
   margin-bottom: var(--space-8);
 }
@@ -430,7 +430,7 @@ body::before {
 }
 
 /* ─── Responsive ─── */
-@media (max-width: 700px) {
+@media (width <= 700px) {
   .page-header { padding: var(--space-10) var(--space-5) var(--space-4); }
   .page-title { font-size: 1.625rem; }
   .projects { padding: 0 var(--space-5); }
@@ -439,7 +439,7 @@ body::before {
   .page-footer { padding: var(--space-10) var(--space-5); }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .page-logo { width: var(--size-logo-sm); height: var(--size-logo-sm); margin-bottom: var(--space-3); }
   .project-metrics { gap: var(--space-3_5); }
   .project-mark { width: var(--size-project-mark-sm); height: var(--size-project-mark-sm); border-radius: 10px; }

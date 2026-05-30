@@ -1,5 +1,5 @@
 /* index.css — index.html-only visual rules.
-   Loaded after components.css. Transcribed verbatim from index.html's <style>
+   Loaded after components.css. Transcribed verbatim from index.html's \3c style>
    (lines 16-459); raw literals tokenized per the design-system policy
    (tokens.css is the only SSOT). Rules already extracted to base.css or
    components.css are NOT duplicated here.
@@ -196,7 +196,7 @@
 }
 
 /* ─── Responsive ─── */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   body { padding: var(--space-4); }
   .card { border-radius: 16px; }
   .card-header { padding: var(--space-8) var(--space-6) var(--space-1); }

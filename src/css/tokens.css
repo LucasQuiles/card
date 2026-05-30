@@ -5,28 +5,28 @@
   --bg: #000;
   --surface: #0a0a0a;
   --surface-hover: #141414;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
+  --border: rgb(255 255 255 / 8%);
+  --border-hover: rgb(255 255 255 / 15%);
   --text-primary: #fff;
-  --text-secondary: rgba(255, 255, 255, 0.55);
-  --text-tertiary: rgba(255, 255, 255, 0.35);
+  --text-secondary: rgb(255 255 255 / 55%);
+  --text-tertiary: rgb(255 255 255 / 35%);
   --accent: #fff;
-  --glow: rgba(255, 255, 255, 0.04);
-  --selection: rgba(255, 255, 255, 0.18);
+  --glow: rgb(255 255 255 / 4%);
+  --selection: rgb(255 255 255 / 18%);
 
   /* UI chrome — promoted from per-page literals to keep base.css raw-value-free
      while preserving exact source rendering (no visual change). */
   --scrollbar-width: 6px;
-  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
-  --focus-ring: rgba(255, 255, 255, 0.3);
+  --scrollbar-thumb: rgb(255 255 255 / 10%);
+  --scrollbar-thumb-hover: rgb(255 255 255 / 20%);
+  --focus-ring: rgb(255 255 255 / 30%);
 
   /* Project-accent colors (portfolio gradients) */
-  --accent-indigo: rgb(99, 102, 241);
-  --accent-violet: rgb(139, 92, 246);
-  --accent-cyan: rgb(6, 182, 212);
-  --accent-amber: rgb(245, 158, 11);
-  --accent-emerald: rgb(16, 185, 129);
+  --accent-indigo: rgb(99 102 241);
+  --accent-violet: rgb(139 92 246);
+  --accent-cyan: rgb(6 182 212);
+  --accent-amber: rgb(245 158 11);
+  --accent-emerald: rgb(16 185 129);
 
   /* Type scale (rem) */
   --text-xs: 0.75rem;
@@ -42,7 +42,7 @@
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', -apple-system, blinkmacsystemfont, sans-serif;
 
   /* Spacing (4px base, rem) */
   --space-1: 0.25rem;
@@ -77,6 +77,7 @@
 
   /* Sizes that don't fit the 4px spacing scale */
   --card-max-width: 440px;    /* .card max-width */
+  --size-icon-xs: 10px;       /* .project-link svg w/h (portfolio) */
   --size-icon-sm: 18px;       /* .service-icon w/h */
   --size-icon-md: 20px;       /* .quick-action svg w/h */
   --size-action: 52px;        /* .quick-action w/h */
@@ -89,23 +90,23 @@
   --space-9: 36px;            /* quick-actions / footer-cta horizontal padding */
 
   /* Surface tints layered over --surface (white alpha overlays) */
-  --tint-03: rgba(255, 255, 255, 0.03);   /* service-row.active bg / inset highlight */
-  --tint-06: rgba(255, 255, 255, 0.06);   /* service-row.active border */
-  --tint-08: rgba(255, 255, 255, 0.08);   /* quick-action:hover bg (value == --border, but bg role) */
-  --tint-12: rgba(255, 255, 255, 0.12);   /* shimmer-line stop / quick-action:active bg */
+  --tint-03: rgb(255 255 255 / 3%);   /* service-row.active bg / inset highlight */
+  --tint-06: rgb(255 255 255 / 6%);   /* service-row.active border */
+  --tint-08: rgb(255 255 255 / 8%);   /* quick-action:hover bg (value == --border, but bg role) */
+  --tint-12: rgb(255 255 255 / 12%);   /* shimmer-line stop / quick-action:active bg */
 
   /* Composite box-shadows (full source values; geometry+color promoted as a unit
      since blur/offset px do not map onto the spacing scale) */
-  --shadow-card-hover: 0 12px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --shadow-row-active: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  --shadow-action-hover: 0 4px 16px rgba(0, 0, 0, 0.3);
-  --shadow-btn-primary-hover: 0 4px 20px rgba(255, 255, 255, 0.1);   /* .btn-primary:hover */
-  --shadow-btn-secondary-hover: 0 4px 16px rgba(0, 0, 0, 0.2);       /* .btn-secondary:hover */
+  --shadow-card-hover: 0 12px 48px rgb(0 0 0 / 40%), 0 0 0 1px rgb(255 255 255 / 4%);
+  --shadow-row-active: 0 2px 12px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 3%);
+  --shadow-action-hover: 0 4px 16px rgb(0 0 0 / 30%);
+  --shadow-btn-primary-hover: 0 4px 20px rgb(255 255 255 / 10%);   /* .btn-primary:hover */
+  --shadow-btn-secondary-hover: 0 4px 16px rgb(0 0 0 / 20%);       /* .btn-secondary:hover */
 
   /* ── index.html-only support (Task 4): header/logo/footer/btn literals ── */
 
   /* Color: .btn-primary:hover near-opaque white wash (no existing token matches). */
-  --accent-hover: rgba(255, 255, 255, 0.88);   /* .btn-primary:hover bg */
+  --accent-hover: rgb(255 255 255 / 88%);   /* .btn-primary:hover bg */
 
   /* Sizes that don't fit the 4px spacing scale (header/logo/footer geometry). */
   --space-7: 28px;            /* .footer-cta-section padding-bottom */
@@ -118,28 +119,28 @@
   --logo-glow-blur-hover: 36px;   /* .card:hover .logo-mark img drop-shadow blur */
 
   /* Glow tints for the logo drop-shadow (white alpha; not equal to existing tints). */
-  --glow-logo: rgba(255, 255, 255, 0.08);        /* base logo drop-shadow color */
-  --glow-logo-hover: rgba(255, 255, 255, 0.14);  /* hover logo drop-shadow color */
+  --glow-logo: rgb(255 255 255 / 8%);        /* base logo drop-shadow color */
+  --glow-logo-hover: rgb(255 255 255 / 14%);  /* hover logo drop-shadow color */
 
   /* ── portfolio.html-only support (Task 5): project-grid literals ── */
 
   /* Additional white-alpha surface tints (portfolio badges / tech-tag / shimmer).
      Extends the --tint-* family; exact source alphas, role-flexible like the
      existing tints. Values not already covered by --tint-03/06/08/12. */
-  --tint-05: rgba(255, 255, 255, 0.05);   /* badge-platform bg / tech-tag border */
-  --tint-10: rgba(255, 255, 255, 0.10);   /* project-card::before shimmer / badge-highlight bg */
-  --tint-45: rgba(255, 255, 255, 0.45);   /* badge-platform text */
-  --tint-60: rgba(255, 255, 255, 0.60);   /* badge-open text */
-  --tint-70: rgba(255, 255, 255, 0.70);   /* badge-highlight text */
+  --tint-05: rgb(255 255 255 / 5%);   /* badge-platform bg / tech-tag border */
+  --tint-10: rgb(255 255 255 / 10%);   /* project-card::before shimmer / badge-highlight bg */
+  --tint-45: rgb(255 255 255 / 45%);   /* badge-platform text */
+  --tint-60: rgb(255 255 255 / 60%);   /* badge-open text */
+  --tint-70: rgb(255 255 255 / 70%);   /* badge-highlight text */
 
   /* Ambient fixed-background radial glows (portfolio body::before). Very low
      white alpha; distinct from every other tint. */
-  --ambient-glow-1: rgba(255, 255, 255, 0.015);  /* radial 30% 20% */
-  --ambient-glow-2: rgba(255, 255, 255, 0.010);  /* radial 70% 80% */
+  --ambient-glow-1: rgb(255 255 255 / 1.5%);  /* radial 30% 20% */
+  --ambient-glow-2: rgb(255 255 255 / 1%);  /* radial 70% 80% */
 
   /* Project-card hover composite shadow (geometry+color promoted as a unit;
      blur/offset px do not map onto the spacing scale). */
-  --shadow-project-hover: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-project-hover: 0 8px 32px rgb(0 0 0 / 40%), 0 0 0 1px rgb(255 255 255 / 4%);
 
   /* Project-mark accent decorations. Source bakes specific alphas into each
      mark's gradient/border/glow; values transcribed verbatim. Promoting the
@@ -147,18 +148,18 @@
      confining the colored literals to this lint-exempt SSOT. The lead color of
      each gradient corresponds to a --accent-* token; the trailing color is a
      companion hue with no standalone token (only used here). */
-  --mark-platform-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.20), rgba(139, 92, 246, 0.12));
-  --mark-platform-border: rgba(99, 102, 241, 0.15);
-  --mark-platform-glow: 0 0 16px rgba(99, 102, 241, 0.15);
-  --mark-orchestration-bg: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(59, 130, 246, 0.10));
-  --mark-orchestration-border: rgba(6, 182, 212, 0.12);
-  --mark-orchestration-glow: 0 0 16px rgba(6, 182, 212, 0.15);
-  --mark-app-bg: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(251, 146, 60, 0.10));
-  --mark-app-border: rgba(245, 158, 11, 0.12);
-  --mark-app-glow: 0 0 16px rgba(245, 158, 11, 0.15);
-  --mark-infra-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(34, 211, 238, 0.10));
-  --mark-infra-border: rgba(16, 185, 129, 0.12);
-  --mark-infra-glow: 0 0 16px rgba(16, 185, 129, 0.15);
+  --mark-platform-bg: linear-gradient(135deg, rgb(99 102 241 / 20%), rgb(139 92 246 / 12%));
+  --mark-platform-border: rgb(99 102 241 / 15%);
+  --mark-platform-glow: 0 0 16px rgb(99 102 241 / 15%);
+  --mark-orchestration-bg: linear-gradient(135deg, rgb(6 182 212 / 18%), rgb(59 130 246 / 10%));
+  --mark-orchestration-border: rgb(6 182 212 / 12%);
+  --mark-orchestration-glow: 0 0 16px rgb(6 182 212 / 15%);
+  --mark-app-bg: linear-gradient(135deg, rgb(245 158 11 / 18%), rgb(251 146 60 / 10%));
+  --mark-app-border: rgb(245 158 11 / 12%);
+  --mark-app-glow: 0 0 16px rgb(245 158 11 / 15%);
+  --mark-infra-bg: linear-gradient(135deg, rgb(16 185 129 / 18%), rgb(34 211 238 / 10%));
+  --mark-infra-border: rgb(16 185 129 / 12%);
+  --mark-infra-glow: 0 0 16px rgb(16 185 129 / 15%);
 
   /* Portfolio page-layout geometry that doesn't fit the 4px spacing scale. */
   --space-15: 60px;           /* .page-header padding-top */
