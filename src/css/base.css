@@ -13,15 +13,15 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: var(--space-6);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+
+  /* Keep the base side padding, but never less than the device safe-area inset
+     (notch / rounded corners). max() degrades to --space-6 where env() is 0. */
+  padding-left: max(var(--space-6), env(safe-area-inset-left));
+  padding-right: max(var(--space-6), env(safe-area-inset-right));
 }
 
 ::selection { background: var(--selection); color: var(--text-primary); }

@@ -4,6 +4,7 @@
   "rules": {
     "declaration-no-important": true,
     "no-duplicate-selectors": true,
+    "media-feature-range-notation": "prefix",
     "no-descending-specificity": null,
     "declaration-block-single-line-max-declarations": null,
     "custom-property-pattern": "^-?([a-z][a-z0-9]*)([-_][a-z0-9]+)*$",

@@ -10,6 +10,15 @@
      .service-row::after, lives in components.css and was mapped to
      var(--fw-regular) there). */
 
+/* Index is a single centered card; portfolio is a normal scrolling document,
+   so the viewport-centering lives here (page-scoped) rather than in shared
+   base.css. */
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ─── Interactive ambient background ─── */
 #ambient-canvas {
   position: fixed;
@@ -196,7 +205,7 @@
 }
 
 /* ─── Responsive ─── */
-@media (width <= 480px) {
+@media (max-width: 480px) {
   body { padding: var(--space-4); }
   .card { border-radius: 16px; }
   .card-header { padding: var(--space-8) var(--space-6) var(--space-1); }
