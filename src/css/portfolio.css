@@ -1,0 +1,448 @@
+/* portfolio.css — portfolio.html-only visual rules.
+   Loaded after components.css. Transcribed verbatim from portfolio.html's
+   <style> (lines 16-547); raw color/gradient/shadow literals tokenized per the
+   design-system policy (tokens.css is the only SSOT). Rules already extracted
+   to base.css (reset, ::selection, scrollbar, html, body, focus-visible,
+   prefers-reduced-motion, .sr-only) or components.css (.quick-action family,
+   .powered-by) are NOT duplicated here. The dead portfolio :root block
+   (missing --surface-hover) is intentionally dropped — all tokens flow from
+   tokens.css.
+
+   Reveal contract: the fade-in animation targets `.project-card.visible`
+   (keyframes `fadeUp`). A later reveal.js task adds/removes `.visible`.
+   Ambient background keyframes: `ambientShift`.
+
+   Deviation from source, per the design-system spec: 'Outfit' headings
+   (.page-title, .project-name, .footer-cta) drop to var(--font-sans) (Inter). */
+
+/* ─── Ambient fixed background ─── */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, var(--ambient-glow-1) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, var(--ambient-glow-2) 0%, transparent 50%);
+  pointer-events: none;
+  animation: ambientShift 20s ease-in-out infinite alternate;
+}
+
+@keyframes ambientShift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(2%, -2%) rotate(1deg); }
+}
+
+/* ─── Header ─── */
+.page-header {
+  max-width: var(--size-page-max);
+  margin: 0 auto;
+  padding: var(--space-15) var(--space-8) var(--space-5);
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1_5);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-8);
+  transition: color 0.3s ease;
+}
+
+.back-link:hover { color: var(--text-secondary); }
+.back-link:active { color: var(--text-primary); }
+.back-link svg { width: 14px; height: 14px; transition: transform 0.3s ease; }
+.back-link:hover svg { transform: translateX(-3px); }
+
+/* Outfit → var(--font-sans): deliberate Outfit drop (page-title below). */
+.page-logo {
+  width: var(--size-logo);
+  height: var(--size-logo);
+  margin: 0 auto var(--space-5);
+}
+
+.page-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 var(--logo-glow-blur) var(--glow-logo));
+  transition: filter 0.4s ease;
+}
+
+.page-logo:hover img {
+  filter: drop-shadow(0 0 var(--logo-glow-blur-hover) var(--glow-logo-hover));
+}
+
+.page-title {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-3);
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: var(--size-subtitle-max);
+  margin: 0 auto;
+}
+
+/* ─── Section Headers ─── */
+.section-label {
+  max-width: var(--size-page-max);
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-8) var(--space-4);
+  font-size: 0.6875rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ─── Project Grid ─── */
+.projects {
+  max-width: var(--size-page-max);
+  margin: 0 auto;
+  padding: 0 var(--space-8) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.4s ease, transform 0.3s ease, box-shadow 0.4s ease, background 0.6s ease;
+  position: relative;
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.project-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-project-hover);
+}
+
+.project-card:active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Reveal contract: reveal.js toggles `.visible` to trigger this animation. */
+.project-card.visible {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--tint-10), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.project-card:hover::before { opacity: 1; }
+
+.project-info {
+  padding: var(--space-6) 1.75rem;
+}
+
+.project-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3_5);
+}
+
+.project-mark {
+  width: var(--size-project-mark);
+  height: var(--size-project-mark);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-mark {
+  transform: scale(1.06);
+}
+
+.project-mark svg {
+  width: 1.375rem;
+  height: 1.375rem;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+.mark-platform {
+  background: var(--mark-platform-bg);
+  border: 1px solid var(--mark-platform-border);
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
+}
+
+.mark-orchestration {
+  background: var(--mark-orchestration-bg);
+  border: 1px solid var(--mark-orchestration-border);
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
+}
+
+.mark-app {
+  background: var(--mark-app-bg);
+  border: 1px solid var(--mark-app-border);
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
+}
+
+.mark-infra {
+  background: var(--mark-infra-bg);
+  border: 1px solid var(--mark-infra-border);
+  transition: transform 0.3s ease, box-shadow 0.4s ease;
+}
+
+.project-card:hover .mark-platform { box-shadow: var(--mark-platform-glow); }
+.project-card:hover .mark-orchestration { box-shadow: var(--mark-orchestration-glow); }
+.project-card:hover .mark-app { box-shadow: var(--mark-app-glow); }
+.project-card:hover .mark-infra { box-shadow: var(--mark-infra-glow); }
+
+.project-name {
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+/* ─── Badges ─── */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1_5);
+  margin-top: var(--space-2);
+}
+
+.badge {
+  font-size: 0.625rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.1875rem var(--space-2);
+  border-radius: 4px;
+  line-height: 1.4;
+}
+
+.badge-open {
+  background: var(--tint-08);
+  color: var(--tint-60);
+  border: 1px solid var(--tint-12);
+}
+
+.badge-private {
+  background: var(--glow);
+  color: var(--text-tertiary);
+  border: 1px solid var(--tint-06);
+}
+
+.badge-platform {
+  background: var(--tint-05);
+  color: var(--tint-45);
+  border: 1px solid var(--border);
+}
+
+.badge-highlight {
+  background: var(--tint-10);
+  color: var(--tint-70);
+  border: 1px solid var(--border-hover);
+}
+
+.project-desc {
+  font-size: 0.875rem;
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-3_5);
+}
+
+.project-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  margin-bottom: var(--space-3_5);
+}
+
+.metric {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3125rem;
+}
+
+.metric-val {
+  font-size: 1rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+}
+
+.metric-label {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+.project-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3125rem;
+}
+
+.tech-tag {
+  font-size: 0.625rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  background: var(--tint-03);
+  padding: 0.1875rem var(--space-2);
+  border-radius: 4px;
+  border: 1px solid var(--tint-05);
+}
+
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  font-size: 0.6875rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  margin-top: var(--space-3);
+  transition: color 0.3s ease;
+}
+
+.project-link:hover { color: var(--text-secondary); }
+.project-link:hover svg { transform: translate(2px, -2px); }
+.project-link svg { width: 10px; height: 10px; transition: transform 0.3s ease; }
+
+/* ─── Footer ─── */
+.page-footer {
+  max-width: var(--size-page-max);
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+}
+
+.footer-divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: var(--space-8);
+}
+
+.footer-cta {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+
+.footer-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-7);
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* ─── Buttons (portfolio variant: inline-flex, distinct from index .btn) ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-btn-primary-hover);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.btn-primary svg {
+  width: var(--size-btn-icon);
+  height: var(--size-btn-icon);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--glow);
+  box-shadow: var(--shadow-btn-secondary-hover);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 700px) {
+  .page-header { padding: var(--space-10) var(--space-5) var(--space-4); }
+  .page-title { font-size: 1.625rem; }
+  .projects { padding: 0 var(--space-5); }
+  .section-label { padding-left: var(--space-5); padding-right: var(--space-5); }
+  .project-info { padding: var(--space-5); }
+  .page-footer { padding: var(--space-10) var(--space-5); }
+}
+
+@media (max-width: 480px) {
+  .page-logo { width: var(--size-logo-sm); height: var(--size-logo-sm); margin-bottom: var(--space-3); }
+  .project-metrics { gap: var(--space-3_5); }
+  .project-mark { width: var(--size-project-mark-sm); height: var(--size-project-mark-sm); border-radius: 10px; }
+  .project-mark svg { width: 18px; height: 18px; }
+  .project-header { gap: var(--space-3); }
+}

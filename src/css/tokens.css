@@ -119,4 +119,50 @@
   /* Glow tints for the logo drop-shadow (white alpha; not equal to existing tints). */
   --glow-logo: rgba(255, 255, 255, 0.08);        /* base logo drop-shadow color */
   --glow-logo-hover: rgba(255, 255, 255, 0.14);  /* hover logo drop-shadow color */
+
+  /* ── portfolio.html-only support (Task 5): project-grid literals ── */
+
+  /* Additional white-alpha surface tints (portfolio badges / tech-tag / shimmer).
+     Extends the --tint-* family; exact source alphas, role-flexible like the
+     existing tints. Values not already covered by --tint-03/06/08/12. */
+  --tint-05: rgba(255, 255, 255, 0.05);   /* badge-platform bg / tech-tag border */
+  --tint-10: rgba(255, 255, 255, 0.10);   /* project-card::before shimmer / badge-highlight bg */
+  --tint-45: rgba(255, 255, 255, 0.45);   /* badge-platform text */
+  --tint-60: rgba(255, 255, 255, 0.60);   /* badge-open text */
+  --tint-70: rgba(255, 255, 255, 0.70);   /* badge-highlight text */
+
+  /* Ambient fixed-background radial glows (portfolio body::before). Very low
+     white alpha; distinct from every other tint. */
+  --ambient-glow-1: rgba(255, 255, 255, 0.015);  /* radial 30% 20% */
+  --ambient-glow-2: rgba(255, 255, 255, 0.010);  /* radial 70% 80% */
+
+  /* Project-card hover composite shadow (geometry+color promoted as a unit;
+     blur/offset px do not map onto the spacing scale). */
+  --shadow-project-hover: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  /* Project-mark accent decorations. Source bakes specific alphas into each
+     mark's gradient/border/glow; values transcribed verbatim. Promoting the
+     whole gradient/shadow as composite tokens keeps exact rendering while
+     confining the colored literals to this lint-exempt SSOT. The lead color of
+     each gradient corresponds to a --accent-* token; the trailing color is a
+     companion hue with no standalone token (only used here). */
+  --mark-platform-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.20), rgba(139, 92, 246, 0.12));
+  --mark-platform-border: rgba(99, 102, 241, 0.15);
+  --mark-platform-glow: 0 0 16px rgba(99, 102, 241, 0.15);
+  --mark-orchestration-bg: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(59, 130, 246, 0.10));
+  --mark-orchestration-border: rgba(6, 182, 212, 0.12);
+  --mark-orchestration-glow: 0 0 16px rgba(6, 182, 212, 0.15);
+  --mark-app-bg: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(251, 146, 60, 0.10));
+  --mark-app-border: rgba(245, 158, 11, 0.12);
+  --mark-app-glow: 0 0 16px rgba(245, 158, 11, 0.15);
+  --mark-infra-bg: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(34, 211, 238, 0.10));
+  --mark-infra-border: rgba(16, 185, 129, 0.12);
+  --mark-infra-glow: 0 0 16px rgba(16, 185, 129, 0.15);
+
+  /* Portfolio page-layout geometry that doesn't fit the 4px spacing scale. */
+  --space-15: 60px;           /* .page-header padding-top */
+  --size-page-max: 900px;     /* page-header/projects/footer max-width */
+  --size-subtitle-max: 600px; /* .page-subtitle max-width */
+  --size-project-mark: 44px;  /* .project-mark w/h */
+  --size-project-mark-sm: 38px; /* .project-mark w/h @ max-width:480px */
 }
