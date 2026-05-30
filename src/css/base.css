@@ -1,0 +1,58 @@
+/* base.css — reset, document defaults, shared a11y primitives.
+   Loaded after tokens.css, before components.css.
+   Transcribed from index.html / portfolio.html (identical in both). */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 16px; scroll-behavior: smooth; overflow-x: hidden; }
+
+body {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+::selection { background: var(--selection); color: var(--text-primary); }
+
+/* Scrollbar (was duplicated in both pages). Raw values have no matching
+   token (0.1 alpha, 3px radius are page-specific constants), kept faithful.
+   :hover thumb (rgba(255,255,255,0.2)) intentionally omitted — no token. */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* Focus ring (was duplicated in both pages). */
+a:focus-visible, button:focus-visible, .btn:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.3);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    /* stylelint-disable-next-line declaration-no-important */
+    animation-duration: 0.01ms !important;
+    /* stylelint-disable-next-line declaration-no-important */
+    animation-iteration-count: 1 !important;
+    /* stylelint-disable-next-line declaration-no-important */
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Visually-hidden, screen-reader-only (used later by an <h1>). */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
