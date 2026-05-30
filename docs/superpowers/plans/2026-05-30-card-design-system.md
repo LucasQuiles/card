@@ -346,19 +346,22 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
 - [ ] **6.1.2** `[ARTIFACT]` Write `mouse-follow.js`, transcribing the EXACT gradient/offset math from the source (custom-prop names must equal the `.card` glow rule from 3.2.5):
 ```js
 // mouse-follow.js — radial-gradient pointer tracking. Shared by both pages.
+// CORRECTED: source sets card.style.background directly (NO --mx/--my custom props).
 export function init(selector = '.card') {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const el = document.querySelector(selector);
   if (!el) return;
   const onPointer = (e) => {
     const r = el.getBoundingClientRect();
-    el.style.setProperty('--mx', `${e.clientX - r.left}px`);
-    el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    el.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(255,255,255,0.02), var(--surface) 60%)`;
   };
   el.addEventListener('mousemove', onPointer, { passive: true });
+  el.addEventListener('mouseleave', () => { el.style.background = 'var(--surface)'; });
 }
 ```
-> `[WHY]` `index.html:643` computes `x = e.clientX - rect.left` — verify the prop names/units match the source before finalizing; transcribe, don't invent.
+> `[WHY — CORRECTED]` Verified at `index.html:641-649` / `portfolio.html:1003-1010`: the glow is applied imperatively by writing `card.style.background` to a radial-gradient string, and `mouseleave` restores `var(--surface)`. There is **NO `--mx`/`--my` CSS layer** and components.css has no glow rule (Task 3 confirmed). The `rgba(255,255,255,0.02)` inner stop is the one raw literal that lives only here — it is a JS-string gradient stop, not a CSS declaration, so the Stylelint color ban does not reach it; keep it verbatim. Element is `id="card"` (source uses `getElementById('card')`); selector `.card` works since the card carries both.
 
 ### 6.2 — `reveal.js` (shared; portfolio IntersectionObserver)
 - [ ] **6.2.1** `[TOOL Read]` `portfolio.html:988-999`. `[REF]` note the exact class it toggles (the `@keyframes fadeUp` trigger class) — that string is the contract with `portfolio.css`.
@@ -682,4 +685,6 @@ jobs:
 
 **Honest transcription gaps (instructions, not placeholders):** exact declarations inside `.card`/`.service-row`, canvas particle math, scroll-cascade EMA, and ORG/TEL/EMAIL/URL vCard lines are cited by precise source line range for verbatim copy during execution — they exceed read context and must NOT be invented. Each such micro-task names the range + a `[TOOL Read]`.
 
-**Type/name consistency contracts (each flagged at its task):** `init()` uniform across all 6 modules · `--mx`/`--my` shared between `mouse-follow.js` (6.1.2) and the `.card` glow rule (3.2.5) · reveal class `'visible'` must equal portfolio's `@keyframes fadeUp` trigger (6.2.1 → re-checked 8.2.2) · partial mechanism unified on EJS `<%- %>` (7.2.5 → 10.1.1).
+**Type/name consistency contracts (each flagged at its task):** `init()` uniform across all 6 modules · mouse-follow glow is JS-inline `card.style.background` (NO `--mx`/`--my` CSS layer — corrected in 6.1.2; components.css has no glow rule) · reveal class `'visible'` must equal portfolio's `@keyframes fadeUp` trigger (6.2.1 → re-checked 8.2.2) · partial mechanism unified on EJS `<%- %>` (7.2.5 → 10.1.1).
+
+**Correction (2026-05-30, Task 3 execution):** the `--mx`/`--my` custom-prop contract assumed in 3.2.5/6.1.2 does NOT exist in source. Verified at `index.html:641-649` + `portfolio.html:1003-1010`: glow is `card.style.background = radial-gradient(...)` set imperatively, restored to `var(--surface)` on `mouseleave`. mouse-follow.js replicates that; no CSS glow rule was extracted.
