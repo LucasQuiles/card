@@ -82,6 +82,7 @@
   --size-action: 52px;        /* .quick-action w/h */
   --space-px: 1px;            /* sub-grid nudge (icon margin-top) */
   --space-0_5: 2px;           /* sub-grid nudge (label/name margins, row ::after) */
+  --space-1_5: 6px;           /* sub-grid nudge (.name margin-bottom) */
   --space-2_5: 10px;          /* .service-row padding-x / margin / .card-footer gap */
   --space-3_5: 14px;          /* .service-row gap / .quick-action border-radius / active padding-x */
   --space-9: 36px;            /* quick-actions / footer-cta horizontal padding */
@@ -97,4 +98,25 @@
   --shadow-card-hover: 0 12px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-row-active: 0 2px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   --shadow-action-hover: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-btn-primary-hover: 0 4px 20px rgba(255, 255, 255, 0.1);   /* .btn-primary:hover */
+  --shadow-btn-secondary-hover: 0 4px 16px rgba(0, 0, 0, 0.2);       /* .btn-secondary:hover */
+
+  /* ── index.html-only support (Task 4): header/logo/footer/btn literals ── */
+
+  /* Color: .btn-primary:hover near-opaque white wash (no existing token matches). */
+  --accent-hover: rgba(255, 255, 255, 0.88);   /* .btn-primary:hover bg */
+
+  /* Sizes that don't fit the 4px spacing scale (header/logo/footer geometry). */
+  --space-7: 28px;            /* .footer-cta-section padding-bottom */
+  --space-11: 44px;           /* .card-header padding-top */
+  --size-logo: 136px;         /* .logo-mark w/h */
+  --size-logo-sm: 112px;      /* .logo-mark w/h @ max-width:480px */
+  --size-btn-icon: 14px;      /* .btn svg w/h (== --space-3_5 value, btn-icon role) */
+  --size-footer-text-max: 340px;  /* .footer-text max-width */
+  --logo-glow-blur: 24px;     /* .logo-mark img drop-shadow blur (base) */
+  --logo-glow-blur-hover: 36px;   /* .card:hover .logo-mark img drop-shadow blur */
+
+  /* Glow tints for the logo drop-shadow (white alpha; not equal to existing tints). */
+  --glow-logo: rgba(255, 255, 255, 0.08);        /* base logo drop-shadow color */
+  --glow-logo-hover: rgba(255, 255, 255, 0.14);  /* hover logo drop-shadow color */
 }

@@ -1,0 +1,207 @@
+/* index.css — index.html-only visual rules.
+   Loaded after components.css. Transcribed verbatim from index.html's <style>
+   (lines 16-459); raw literals tokenized per the design-system policy
+   (tokens.css is the only SSOT). Rules already extracted to base.css or
+   components.css are NOT duplicated here.
+
+   Two deliberate deviations from source, per the design-system spec:
+   - 'Outfit' headings (.name, .footer-cta) drop to var(--font-sans) (Inter).
+   - No font-weight:300 appears in index-only rules (the only 300 in source,
+     .service-row::after, lives in components.css and was mapped to
+     var(--fw-regular) there). */
+
+/* ─── Interactive ambient background ─── */
+#ambient-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ─── Header / Logo ─── */
+.card-header {
+  padding: var(--space-11) var(--space-9) var(--space-2);
+  text-align: center;
+  position: relative;
+}
+
+.logo-mark {
+  width: var(--size-logo);
+  height: var(--size-logo);
+  margin: 0 auto var(--space-3_5);
+  position: relative;
+}
+
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 var(--logo-glow-blur) var(--glow-logo));
+  transition: filter 0.4s ease;
+}
+
+.card:hover .logo-mark img {
+  filter: drop-shadow(0 0 var(--logo-glow-blur-hover) var(--glow-logo-hover));
+}
+
+/* Outfit → var(--font-sans): deliberate Outfit drop. */
+.name {
+  font-family: var(--font-sans);
+  font-size: 1.875rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.04em;
+  margin-bottom: var(--space-1_5);
+  line-height: 1.2;
+}
+
+.title-line {
+  font-size: 0.9375rem;
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ─── Divider ─── */
+.divider {
+  height: var(--space-px);
+  margin: 0 var(--space-9);
+  background: var(--border);
+}
+
+/* ─── What We Do (tagline) ─── */
+.tagline {
+  padding: var(--space-6) var(--space-9);
+  text-align: center;
+}
+
+.tagline p {
+  font-size: 0.8125rem;
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ─── Services ─── */
+.services {
+  padding: var(--space-5) var(--space-9) var(--space-6);
+}
+
+.services-label {
+  font-size: 0.625rem;
+  font-weight: var(--fw-medium);
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Footer CTA ─── */
+.footer-cta-section {
+  padding: var(--space-9) var(--space-9) var(--space-7);
+  text-align: center;
+}
+
+/* Outfit → var(--font-sans): deliberate Outfit drop. */
+.footer-cta {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
+}
+
+.footer-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--space-1);
+  max-width: var(--size-footer-text-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── Footer (buttons) ─── */
+.card-footer {
+  padding: var(--space-4) var(--space-9) var(--space-6);
+  display: flex;
+  gap: var(--space-2_5);
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 1.125rem;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(calc(-1 * var(--space-px)));
+  box-shadow: var(--shadow-btn-primary-hover);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--glow);
+  box-shadow: var(--shadow-btn-secondary-hover);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.btn svg {
+  width: var(--size-btn-icon);
+  height: var(--size-btn-icon);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+  body { padding: var(--space-4); }
+  .card { border-radius: 16px; }
+  .card-header { padding: var(--space-8) var(--space-6) var(--space-1); }
+  .logo-mark { width: var(--size-logo-sm); height: var(--size-logo-sm); margin-bottom: var(--space-3); }
+  .name { font-size: 1.625rem; }
+  .tagline, .services, .quick-actions, .card-footer, .footer-cta-section { padding-left: var(--space-6); padding-right: var(--space-6); }
+  .divider { margin: 0 var(--space-6); }
+}
