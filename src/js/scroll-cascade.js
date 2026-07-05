@@ -55,16 +55,6 @@ export function init() {
   if (!els.length) return;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Coarse pointer = touch is the PRIMARY input (phones, tablets). The
-  // scroll-driven morph is a fine-pointer (wheel/trackpad) delight: it couples
-  // scrolling-through-the-document with expanding-content, which on touch fights
-  // direct manipulation — the page grows under the finger so content stops
-  // tracking the drag 1:1, and iOS momentum coalesces scroll events into a
-  // stepped morph against a page height that is changing mid-coast. On coarse
-  // pointers the rows rest collapsed and open on TAP instead (same eased pin
-  // animation), leaving native scroll/momentum completely untouched. Hybrid
-  // laptops with a trackpad report a fine primary pointer and keep the morph.
-  const coarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
   const rows = els.map((el) => ({
     el,
@@ -72,6 +62,9 @@ export function init() {
     inner: null, // rise/fade target — the description text wrapped so it can be
                  // translated inside the height-clipping box (set just below)
     natH: 0,
+    rowH0: 0,   // row offsetHeight fully collapsed (--t 0)
+    growth: 0,  // total px this row adds opening (--t 0→1): desc height + the
+                // row's own padding, which interpolates with --t in the CSS
     current: 0,
     pin: null, // null → scroll-driven; 0 or 1 → user-pinned
     aria: null, // last-written aria-expanded boolean (paint skips no-op writes)
@@ -126,6 +119,36 @@ export function init() {
 
   let openRange = 1;
 
+  // ── Reserved scroll length (constant document height) ──────────────────────
+  // The morph maps openness to scroll position against a FIXED denominator
+  // (openRange, the expanded scroll range). But the live document GROWS as rows
+  // open, so when collapsed the page is shorter than the expanded range: on a
+  // wheel that is invisible, but on touch a single flick hits a bottom that is
+  // still receding (each row that opens adds height), so momentum under- and
+  // over-shoots and the morph feels choppy. Fix: hold the document at its FULLY
+  // EXPANDED height at all times with a spacer whose height is exactly the room
+  // the still-closed rows have yet to claim — spacer = Σ(1−t_i)·natH_i. Content
+  // grown + spacer left = a constant, so scrollY ranges 0→openRange from the
+  // first frame, one flick traverses the whole morph, and momentum coasts
+  // against a height that never moves. The spacer sits below the card, is 1px
+  // wide and a11y-hidden, and collapses to 0 exactly at the bottom (prog=1, all
+  // rows open) — so it is always past the last visible element and never shows
+  // as a gap. Measured: the card already overflows every real viewport, so the
+  // reserved tail only ever lives below the fold; the resting layout is
+  // unchanged on desktop and touch alike.
+  let fullGrowthTotal = 0; // Σ growth — total px the whole list adds fully open
+  const spacer = document.createElement('div');
+  spacer.setAttribute('aria-hidden', 'true');
+  spacer.style.cssText = 'width:1px;margin:0 auto;flex:none;pointer-events:none;';
+  const card = document.getElementById('card') || els[0].closest('.card');
+  (card ? card.parentNode : document.body).appendChild(spacer);
+  const updateSpacer = () => {
+    let opened = 0;
+    for (const r of rows) opened += r.current * r.growth;
+    const s = fullGrowthTotal - opened;
+    spacer.style.height = `${(s > 0 ? s : 0).toFixed(2)}px`;
+  };
+
   // One synchronous read pass in two stages (no paint happens until control
   // returns to the event loop, so nothing flashes). Stage A collapses every
   // row to read each description's natural height; stage B opens every row to
@@ -150,13 +173,17 @@ export function init() {
       r.desc.style.visibility = 'hidden';
     });
     rows.forEach((r) => {
-      if (!r.desc) return;
-      const s = r.desc.style;
-      s.paddingTop = '';   // fall back to the CSS natural padding-top
-      s.height = 'auto';
-      r.natH = r.desc.offsetHeight;
-      s.height = '0px';
-      s.paddingTop = '0px';
+      if (r.desc) {
+        const s = r.desc.style;
+        s.paddingTop = '';   // fall back to the CSS natural padding-top
+        s.height = 'auto';
+        r.natH = r.desc.offsetHeight;
+        s.height = '0px';
+        s.paddingTop = '0px';
+      }
+      // Row height fully collapsed — the baseline the reserved tail measures the
+      // row's total opening growth against (padding included, not just the desc).
+      r.rowH0 = r.el.offsetHeight;
     });
 
     // Stage B — open all to natural height and read the expanded scroll range.
@@ -173,6 +200,15 @@ export function init() {
       r.desc.style.opacity = '1';
       r.desc.style.visibility = 'visible';
     });
+    // Per-row total growth = fully-open row height − fully-collapsed row height,
+    // so every source of vertical change is captured (description height AND the
+    // row's --t-interpolated padding), making the reserved tail cancel the
+    // document's growth exactly rather than approximately.
+    rows.forEach((r) => { r.growth = Math.max(0, r.el.offsetHeight - r.rowH0); });
+    fullGrowthTotal = rows.reduce((a, r) => a + r.growth, 0);
+    // Zero the reserved tail so the read is the true expanded range, not
+    // expanded + a stale spacer. updateSpacer() restores it after measure.
+    spacer.style.height = '0px';
     openRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 
     // Restore prior inline state.
@@ -254,6 +290,7 @@ export function init() {
         const t = smootherstep(clamp01((prog * SPAN - i) / SPREAD));
         if (r.current !== t) { r.current = t; paint(r); }
       });
+      updateSpacer(); // keep the document height constant as rows morph
     }
     requestAnimationFrame(tick);
   };
@@ -281,6 +318,7 @@ export function init() {
       paint(r);
       moving = true;
     });
+    updateSpacer(); // a pinned row easing open/closed also reflows the tail
     if (moving) requestAnimationFrame(animate);
     else animating = false;
   };
@@ -299,31 +337,33 @@ export function init() {
 
   measure();
 
-  // Touch (coarse pointer): no scroll-driven morph. Rows rest collapsed and the
-  // tap handler above (pin → eased animate) owns every open/close. No scroll
-  // listener is attached, so momentum/inertia is entirely the platform's — the
-  // page reflows naturally below a tapped row, and nothing tracks the finger but
-  // the finger. Resize only re-reads natural heights so the tap animation lands
-  // at the right height; current openness (collapsed, or a user-pinned row) is
-  // preserved and repainted.
-  if (coarsePointer) {
-    rows.forEach((r) => { r.current = 0; paint(r); });
-    window.addEventListener('resize', () => {
-      measure();
-      rows.forEach((r) => paint(r));
-    }, { passive: true });
-    return;
-  }
-
-  // Fine pointer (wheel/trackpad): full scroll-driven accordion.
+  // One scroll-driven accordion for EVERY surface — wheel, trackpad, and touch
+  // alike. Consistency across clients is the point: the same rAF sampler drives
+  // the morph everywhere, and the reserved-height spacer (above) makes the
+  // scroll range identical on all of them, so a phone flick and a trackpad swipe
+  // traverse the exact same mapping. Native momentum is never hijacked — we only
+  // sample the scroll position the platform reports.
+  //
+  // The sampler is kicked by scroll AND by touchstart/touchmove. Kicking on
+  // touch matters because a scroll listener alone starts the rAF loop only once
+  // the browser dispatches its first coalesced scroll event, which on touch lags
+  // the finger by a frame or two and reads as chop at the start of a drag.
+  // touchstart wakes the loop on contact so openness tracks the compositor from
+  // the first moved pixel; the loop then self-samples every DISPLAY frame
+  // through the drag and the momentum coast, and self-terminates a few idle
+  // frames after everything stops.
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('touchstart', onScroll, { passive: true });
+  window.addEventListener('touchmove', onScroll, { passive: true });
   window.addEventListener('resize', () => {
     measure();
     rows.forEach((r, i) => {
       if (r.pin === null) r.current = targetFor(i);
       paint(r);
     });
+    updateSpacer();
   }, { passive: true });
 
   rows.forEach((r, i) => { r.current = targetFor(i); paint(r); });
+  updateSpacer();
 }
