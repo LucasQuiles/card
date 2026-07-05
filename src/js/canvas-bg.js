@@ -82,5 +82,17 @@ export function init() {
   window.addEventListener('mousemove', onPointer, { passive: true });
   window.addEventListener('touchmove', onPointer, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Pause the RAF loop while the tab is hidden (battery/CPU); the canvas is
+  // position:fixed and always in-viewport, so tab visibility is the only gate.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    } else if (animId === null) {
+      draw();
+    }
+  });
+
   draw();
 }
