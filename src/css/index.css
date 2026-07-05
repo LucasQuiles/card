@@ -101,8 +101,11 @@ body {
   padding: var(--space-5) var(--space-9) var(--space-6);
 }
 
+/* Eyebrow label — matched to portfolio .section-label (0.6875rem) so both
+   pages share one section-label size; also clears the ≥10.5px micro-label
+   legibility floor the codebase adopted for quick-action / powered-by. */
 .services-label {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: var(--fw-medium);
   color: var(--text-tertiary);
   letter-spacing: 0.12em;
@@ -122,14 +125,7 @@ body {
   text-align: center;
 }
 
-/* Outfit → var(--font-sans): deliberate Outfit drop. */
-.footer-cta {
-  font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: var(--fw-semibold);
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-2);
-}
+/* .footer-cta heading skin is shared — see components.css. */
 
 .footer-text {
   font-size: 0.8125rem;
@@ -149,67 +145,20 @@ body {
   gap: var(--space-2_5);
 }
 
-.btn {
+/* Landing layout delta only — buttons stretch to fill the footer row and take
+   a slightly tighter horizontal padding + letter-spacing. All button skin
+   (color, radius, hover/active, icon) is shared in components.css. */
+.card-footer .btn {
   flex: 1;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  gap: var(--space-2);
   padding: var(--space-3) 1.125rem;
-  border-radius: 12px;
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: var(--fw-medium);
   letter-spacing: -0.01em;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(calc(-1 * var(--space-px)));
-  box-shadow: var(--shadow-btn-primary-hover);
-}
-
-.btn-primary:active {
-  transform: translateY(0) scale(0.97);
-  transition-duration: 0.1s;
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  color: var(--text-primary);
-  border-color: var(--border-hover);
-  background: var(--glow);
-  box-shadow: var(--shadow-btn-secondary-hover);
-}
-
-.btn-secondary:active {
-  transform: scale(0.97);
-  transition-duration: 0.1s;
-}
-
-.btn svg {
-  width: var(--size-btn-icon);
-  height: var(--size-btn-icon);
 }
 
 /* ─── Responsive ─── */
 @media (max-width: 480px) {
   body { padding: var(--space-4); }
-  .card { border-radius: 16px; }
+  .card { border-radius: var(--radius-lg); }
   .card-header { padding: var(--space-8) var(--space-6) var(--space-1); }
   .logo-mark { width: var(--size-logo-sm); height: var(--size-logo-sm); margin-bottom: var(--space-3); }
   .name { font-size: 1.625rem; }
@@ -236,16 +185,17 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   .card {
     --stagger: 70ms;
+
     /* backwards, not both: hold the hidden first frame through the delay (no
        pre-flash) but drop the applied styles once the reveal ends, so no
        transform/opacity lingers and no idle compositor layer is left behind —
        the same at-rest cleanliness scroll-cascade.js keeps for the rows. */
-    animation: card-rise 0.7s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+    animation: card-rise 0.7s var(--ease-entrance) backwards;
   }
 
+  /* Children start one card-fade in, then step down the list. */
   .card > * {
-    animation: child-rise 0.6s cubic-bezier(0.23, 1, 0.32, 1) backwards;
-    /* Children start one card-fade in, then step down the list. */
+    animation: child-rise 0.6s var(--ease-entrance) backwards;
     animation-delay: calc(0.12s + var(--i, 0) * var(--stagger));
   }
 

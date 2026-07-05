@@ -70,6 +70,7 @@ export function init() {
     natH: 0,
     current: 0,
     pin: null, // null → scroll-driven; 0 or 1 → user-pinned (temporary override)
+    anchorY: 0, // scrollY captured when THIS row was pinned; release when scroll leaves it
     sync: false, // true → easing back into the scroll-driven set after a pin release
     aria: null, // last-written aria-expanded boolean (paint skips no-op writes)
     vis: null,  // last-written visibility boolean
@@ -303,7 +304,6 @@ export function init() {
   let ticking = false;
   let lastY = -1;
   let idle = 0;
-  let pinAnchorY = 0; // scrollY captured when a row is pinned; release when scroll leaves it
   const tick = () => {
     const y = window.scrollY;
     if (y === lastY) {
@@ -314,14 +314,17 @@ export function init() {
       const prog = clamp01(y / openRange);
       let released = false;
       rows.forEach((r, i) => {
-        // A pinned row is released by GENUINE scroll movement away from where it was
-        // pinned — compared against pinAnchorY, not the ticker's per-wake lastY.
-        // (lastY resets to -1 on every wake, so a single-sample scroll — one wheel
-        // notch that settles within a frame — used to skip the only frame movement
-        // was visible and never release. Anchoring to pin-time scrollY releases on
-        // the first moved frame regardless of how coarsely the scroll is sampled.)
+        // A pinned row is released by GENUINE scroll movement away from where it
+        // was pinned — compared against the row's OWN anchor (r.anchorY), not the
+        // ticker's per-wake lastY. (lastY resets to -1 on every wake, so a
+        // single-sample scroll — one wheel notch that settles within a frame — used
+        // to skip the only frame movement was visible and never release. Anchoring
+        // to pin-time scrollY releases on the first moved frame regardless of how
+        // coarsely the scroll is sampled.) The anchor is per-row so two rows pinned
+        // at different scroll positions each release against where they were pinned,
+        // not against a shared last-clicked value.
         if (r.pin !== null) {
-          if (y !== pinAnchorY) { r.pin = null; r.sync = true; released = true; }
+          if (y !== r.anchorY) { r.pin = null; r.sync = true; released = true; }
           return; // pinned, or just released → animate owns the eased glide back
         }
         if (r.sync) return; // re-aligning → animate owns it
@@ -380,7 +383,7 @@ export function init() {
     r.el.addEventListener('click', () => {
       r.pin = r.current > 0.5 ? 0 : 1;
       r.sync = false; // a fresh tap cancels any in-progress re-alignment
-      pinAnchorY = window.scrollY; // release this pin when the page scrolls away from here
+      r.anchorY = window.scrollY; // release this pin when the page scrolls away from here
       kickAnim();
     });
   });
@@ -413,15 +416,28 @@ export function init() {
   // reflows taller and the document would exceed the stale floor near the bottom
   // (the page grows as you approach it) — so we re-measure once fonts are ready.
   const relayout = () => {
+    const wasStatic = staticOpen;
     measure();
+    // A threshold crossing (scroll-driven ⇄ static-open — e.g. a mobile URL-bar
+    // collapse that toggles whether the card still overflows the viewport) flips
+    // every row's target between its scroll-mapped openness and fully-open. Snap
+    // there and the whole list pops at once; instead hand the unpinned rows to
+    // animate() so they GLIDE to the new openness on the same ease a pin release
+    // uses. A plain relayout (font swap, ordinary resize) still snaps — there the
+    // layout itself moved and an eased follow would just look laggy.
+    const crossed = staticOpen !== wasStatic;
     const prog = progNow();
     rows.forEach((r, i) => {
       // Snap only rows the scroll mapping owns. A row mid-glide back from a pin
       // release (r.sync, pin already null) is left to animate()'s eased catch-up,
       // or it would pop to target instantly.
-      if (r.pin === null && !r.sync) r.current = liveTarget(prog, i);
+      if (r.pin === null && !r.sync) {
+        if (crossed) r.sync = true; // ease to the new openness rather than snapping
+        else r.current = liveTarget(prog, i);
+      }
       paint(r);
     });
+    if (crossed) kickAnim();
   };
 
   // Coalesce relayout to at most one run per frame, and never re-measure while a
@@ -450,10 +466,15 @@ export function init() {
   // threshold, defer to a full remeasure (which also restores/clears the floor).
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
-      const wasStatic = staticOpen;
-      openRange = Math.max(1, fullDocH - window.innerHeight);
-      staticOpen = openRange < SCROLL_MIN;
-      if (staticOpen !== wasStatic) { queueRelayout(); return; }
+      const newRange = Math.max(1, fullDocH - window.innerHeight);
+      // A crossing of the static-open threshold is deferred to a full remeasure,
+      // which eases the rows to their new openness (see relayout). Leave staticOpen
+      // UNTOUCHED here so relayout can still see the old mode and detect the cross;
+      // pre-flipping it would hide the transition and snap the list.
+      if ((newRange < SCROLL_MIN) !== staticOpen) { queueRelayout(); return; }
+      // Same mode: just refresh the denominator arithmetically (no reflow) and
+      // re-map the scroll-driven rows to the new range.
+      openRange = newRange;
       const prog = progNow();
       rows.forEach((r, i) => { if (r.pin === null && !r.sync) { r.current = liveTarget(prog, i); paint(r); } });
     }, { passive: true });

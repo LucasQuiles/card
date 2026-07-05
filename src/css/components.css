@@ -17,7 +17,7 @@
   max-width: var(--card-max-width);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   transition: border-color 0.6s ease, box-shadow 0.4s ease, background 0.6s ease;
 }
@@ -65,7 +65,7 @@
     calc(var(--space-2_5) + var(--t) * (var(--space-3) - var(--space-2_5)))
     calc(var(--space-3) + var(--t) * (var(--space-4) - var(--space-3)));
   margin: 0 calc(-1 * var(--space-2_5));
-  border-radius: 10px;
+  border-radius: var(--radius-row);
   border: 1px solid transparent;
   border-color: color-mix(in srgb, transparent, var(--tint-06) calc(var(--t) * 100%));
   background: color-mix(in srgb, transparent, var(--tint-03) calc(var(--t) * 100%));
@@ -96,6 +96,10 @@
   right: calc(var(--space-2_5) + var(--t) * (var(--space-3) - var(--space-2_5)));
   width: 0.66rem;
   height: 0.1rem;
+
+  /* 1px end-cap on the 1.6px-tall marker bar — a hairline detail below the
+     radius scale, not a design-system corner. Intentionally off-token. */
+  /* stylelint-disable-next-line unit-disallowed-list */
   border-radius: 1px;
   background: var(--text-tertiary);
 }
@@ -175,7 +179,7 @@
 .quick-action {
   width: var(--size-action);
   height: var(--size-action);
-  border-radius: 14px;
+  border-radius: var(--radius-action);
   background: var(--glow);
   border: 1px solid var(--border);
   display: flex;
@@ -230,4 +234,76 @@
 .powered-by span {
   font-weight: var(--fw-semibold);
   color: var(--text-secondary);
+}
+
+/* ─── Buttons (shared skin) ───────────────────────────────────────────────
+   The button *appearance* (color, radius, type, hover/active, icon size) is
+   identical on both pages and lives here as the single source. Each page adds
+   only its layout delta as a scoped override: the landing footer stretches
+   buttons full-width (.card-footer .btn), the portfolio footer keeps them
+   auto-width and centered (.footer-actions, base padding). Default padding
+   below is the portfolio value; the landing override tightens it. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn svg {
+  width: var(--size-btn-icon);
+  height: var(--size-btn-icon);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(calc(-1 * var(--space-px)));
+  box-shadow: var(--shadow-btn-primary-hover);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--glow);
+  box-shadow: var(--shadow-btn-secondary-hover);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* ─── Footer CTA heading (shared) ─────────────────────────────────────────
+   The "let's build something" heading above the footer buttons — identical on
+   both pages. (Outfit dropped to var(--font-sans) per the design-system spec.) */
+.footer-cta {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-2);
 }

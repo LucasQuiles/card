@@ -13,7 +13,7 @@
     },
     "unit-disallowed-list": [["px"], {
       "ignoreProperties": {
-        "px": ["border", "border-width", "border-top", "border-right", "border-bottom", "border-left", "outline", "outline-width", "outline-offset", "border-radius", "transform"]
+        "px": ["border", "border-width", "border-top", "border-right", "border-bottom", "border-left", "outline", "outline-width", "outline-offset", "transform"]
       },
       "ignoreMediaFeatureNames": {
         "px": ["min-width", "max-width", "min-height", "max-height", "width", "height"]

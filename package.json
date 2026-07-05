@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint:css": "stylelint \"src/css/**/*.css\"",
+    "ds-verify": "node scripts/ds-verify.mjs",
+    "verify": "npm run lint:css && npm run ds-verify && npm run build",
     "a11y": "axe http://localhost:4173/card/ http://localhost:4173/card/portfolio.html --exit",
     "deploy": "bash scripts/deploy.sh"
   },

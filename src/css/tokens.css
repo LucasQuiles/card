@@ -1,10 +1,9 @@
 /* tokens.css — single source of truth for all design values.
    Raw hex/rgb/px values are ALLOWED ONLY in this file (Stylelint override). */
 :root {
-  /* Color — promoted from index :root, adds the missing --surface-hover */
+  /* Color — promoted from index :root */
   --bg: #000;
   --surface: #0a0a0a;
-  --surface-hover: #141414;
   --border: rgb(255 255 255 / 8%);
   --border-hover: rgb(255 255 255 / 15%);
   --text-primary: #fff;
@@ -20,22 +19,6 @@
   --scrollbar-thumb: rgb(255 255 255 / 10%);
   --scrollbar-thumb-hover: rgb(255 255 255 / 20%);
   --focus-ring: rgb(255 255 255 / 30%);
-
-  /* Project-accent colors (portfolio gradients) */
-  --accent-indigo: rgb(99 102 241);
-  --accent-violet: rgb(139 92 246);
-  --accent-cyan: rgb(6 182 212);
-  --accent-amber: rgb(245 158 11);
-  --accent-emerald: rgb(16 185 129);
-
-  /* Type scale (rem) */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.5rem;
-  --text-2xl: 2rem;
-  --text-3xl: 2.5rem;
 
   /* Font weights */
   --fw-regular: 400;
@@ -55,22 +38,20 @@
   --space-10: 2.5rem;
   --space-12: 3rem;
 
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-full: 9999px;
+  /* Radius — full scale so every corner flows from tokens (SSOT). The 10px/14px
+     steps sit off the t-shirt scale but are real, established radii; kept at
+     exact values and tokenized rather than snapped (no visual change). */
+  --radius-xs: 4px;       /* badges / tech-tags */
+  --radius-row: 10px;     /* service-row & compact (≤480) project-mark */
+  --radius-md: 12px;      /* buttons / project-mark */
+  --radius-action: 14px;  /* quick-action tile */
+  --radius-lg: 16px;      /* project-card / hero card @≤480 */
+  --radius-xl: 20px;      /* landing hero card (rounder than wide list cards) */
 
-  /* Motion */
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur-fast: 150ms;
-  --dur-base: 250ms;
-  --dur-slow: 400ms;
-
-  /* Opacity */
-  --op-muted: 0.55;
-  --op-subtle: 0.35;
-  --op-faint: 0.08;
+  /* Motion — the signature entrance/reveal curve (ease-out-quint), the CSS twin
+     of the accordion's quintic smootherstep. Shared by the landing card entrance
+     and the portfolio card reveal so both pages decelerate on one motion language. */
+  --ease-entrance: cubic-bezier(0.23, 1, 0.32, 1);
 
   /* ── Component support (promoted from index.html .card/.service-row/
      .quick-action literals; exact source values, no visual change) ── */
@@ -98,7 +79,6 @@
   /* Composite box-shadows (full source values; geometry+color promoted as a unit
      since blur/offset px do not map onto the spacing scale) */
   --shadow-card-hover: 0 12px 48px rgb(0 0 0 / 40%), 0 0 0 1px rgb(255 255 255 / 4%);
-  --shadow-row-active: 0 2px 12px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 3%);
   --shadow-row-shade: rgb(0 0 0 / 20%);   /* drop-shadow colour, faded by --t on the service rows */
   --shadow-action-hover: 0 4px 16px rgb(0 0 0 / 30%);
   --shadow-btn-primary-hover: 0 4px 20px rgb(255 255 255 / 10%);   /* .btn-primary:hover */
@@ -146,9 +126,7 @@
   /* Project-mark accent decorations. Source bakes specific alphas into each
      mark's gradient/border/glow; values transcribed verbatim. Promoting the
      whole gradient/shadow as composite tokens keeps exact rendering while
-     confining the colored literals to this lint-exempt SSOT. The lead color of
-     each gradient corresponds to a --accent-* token; the trailing color is a
-     companion hue with no standalone token (only used here). */
+     confining the colored literals to this lint-exempt SSOT. */
   --mark-platform-bg: linear-gradient(135deg, rgb(99 102 241 / 20%), rgb(139 92 246 / 12%));
   --mark-platform-border: rgb(99 102 241 / 15%);
   --mark-platform-glow: 0 0 16px rgb(99 102 241 / 15%);

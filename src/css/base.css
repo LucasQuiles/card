@@ -40,6 +40,10 @@ body {
    (whitelisted by Stylelint); colors/width flow from tokens.css. */
 ::-webkit-scrollbar { width: var(--scrollbar-width); }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* 3px = half the 6px scrollbar-width — a pill on the track, tied to the
+   scrollbar geometry, not the corner-radius scale. Intentionally off-token. */
+/* stylelint-disable-next-line unit-disallowed-list */
 ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
@@ -47,7 +51,7 @@ body {
 a:focus-visible, button:focus-visible, .btn:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -122,7 +122,7 @@ body::before {
 .project-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   transition: border-color 0.4s ease, transform 0.3s ease, box-shadow 0.4s ease, background 0.6s ease;
   position: relative;
@@ -146,9 +146,11 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Reveal contract: reveal.js toggles `.visible` to trigger this animation. */
+/* Reveal contract: reveal.js toggles `.visible` to trigger this animation.
+   Shares --ease-entrance with the landing card entrance so both pages reveal
+   on the same ease-out-quint motion language. */
 .project-card.visible {
-  animation: fade-up 0.5s ease forwards;
+  animation: fade-up 0.5s var(--ease-entrance) forwards;
 }
 
 .project-card::before {
@@ -158,7 +160,7 @@ body::before {
   left: 0;
   right: 0;
   height: var(--space-px);
-  background: linear-gradient(90deg, transparent, var(--tint-10), transparent);
+  background: linear-gradient(90deg, transparent, var(--tint-12), transparent);
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -179,7 +181,7 @@ body::before {
 .project-mark {
   width: var(--size-project-mark);
   height: var(--size-project-mark);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -249,7 +251,7 @@ body::before {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.1875rem var(--space-2);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   line-height: 1.4;
 }
 
@@ -321,7 +323,7 @@ body::before {
   color: var(--text-tertiary);
   background: var(--tint-03);
   padding: 0.1875rem var(--space-2);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   border: 1px solid var(--tint-05);
 }
 
@@ -355,13 +357,7 @@ body::before {
   margin-bottom: var(--space-8);
 }
 
-.footer-cta {
-  font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: var(--fw-semibold);
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-2);
-}
+/* .footer-cta heading skin is shared — see components.css. */
 
 .footer-text {
   font-size: 0.875rem;
@@ -376,60 +372,9 @@ body::before {
   gap: var(--space-3);
 }
 
-/* ─── Buttons (portfolio variant: inline-flex, distinct from index .btn) ─── */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-6);
-  border-radius: 12px;
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: var(--fw-medium);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-btn-primary-hover);
-}
-
-.btn-primary:active {
-  transform: translateY(0) scale(0.97);
-  transition-duration: 0.1s;
-}
-
-.btn-primary svg {
-  width: var(--size-btn-icon);
-  height: var(--size-btn-icon);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  color: var(--text-primary);
-  border-color: var(--border-hover);
-  background: var(--glow);
-  box-shadow: var(--shadow-btn-secondary-hover);
-}
-
-.btn-secondary:active {
-  transform: scale(0.97);
-  transition-duration: 0.1s;
-}
+/* Buttons: the portfolio footer uses the shared .btn skin (components.css)
+   directly — base padding/auto-width is the portfolio value, so no override is
+   needed here. The landing page scopes its own full-width delta. */
 
 /* ─── Responsive ─── */
 @media (max-width: 700px) {
@@ -444,7 +389,7 @@ body::before {
 @media (max-width: 480px) {
   .page-logo { width: var(--size-logo-sm); height: var(--size-logo-sm); margin-bottom: var(--space-3); }
   .project-metrics { gap: var(--space-3_5); }
-  .project-mark { width: var(--size-project-mark-sm); height: var(--size-project-mark-sm); border-radius: 10px; }
+  .project-mark { width: var(--size-project-mark-sm); height: var(--size-project-mark-sm); border-radius: var(--radius-row); }
   .project-mark svg { width: var(--size-icon-sm); height: var(--size-icon-sm); }
   .project-header { gap: var(--space-3); }
   .quick-actions { gap: var(--space-2_5); }
