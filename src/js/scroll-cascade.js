@@ -1,9 +1,9 @@
 // scroll-cascade.js — continuous scroll-driven accordion for the service rows.
 //
 // Openness is a function of how far the page has been scrolled, measured
-// against a FIXED range — the scrollable distance when every row is collapsed,
-// captured once. Progress prog = clamp(scrollY / openRange) runs 0→1; each row
-// opens across an overlapping sub-range of prog:
+// against a FIXED range — the scrollable distance when every row is fully
+// expanded, captured once. Progress prog = clamp(scrollY / openRange) runs
+// 0→1; each row opens across an overlapping sub-range of prog:
 //
 //   t_i = smoothstep( clamp( (prog·(N + SPREAD) − i) / SPREAD ) )
 //
@@ -18,9 +18,12 @@
 // feedback loop — open → taller page → less progress → close → shorter page →
 // open … — and an eased follow keeps animating after the wheel stops. Together
 // they make the page drift and grow for a beat after you stop scrolling: the
-// jumpiness. Pinning the denominator to the collapsed range makes prog depend
-// only on scrollY, a stable input; painting unpinned rows straight to their
-// target each frame ties openness to the wheel 1:1 with no settling. Rows only
+// jumpiness. Pinning the denominator to a constant (the expanded range) makes
+// prog depend only on scrollY, a stable input, so the loop is gone; the
+// expanded range also gives each row a long travel of scroll to animate over,
+// so motion stays fluid rather than snapping. Painting unpinned rows straight
+// to their target each frame ties openness to the wheel 1:1 with no settling.
+// Rows only
 // ever grow/shrink at or below the reading position (higher-index rows sit
 // lower and open later), so expansion pushes off-screen content down rather
 // than shoving what is being read.
@@ -81,18 +84,21 @@ export function init() {
 
   let openRange = 1;
 
-  // Force every row collapsed for one synchronous read pass (no paint happens
-  // until control returns to the event loop, so nothing flashes): capture each
-  // description's natural height and the collapsed scroll range, then restore.
-  // scrollY is saved/restored because collapsing can transiently shrink the
-  // document below the current offset and clamp it.
+  // One synchronous read pass in two stages (no paint happens until control
+  // returns to the event loop, so nothing flashes). Stage A collapses every
+  // row to read each description's natural height; stage B opens every row to
+  // read the fully EXPANDED scroll range — the fixed denominator. scrollY is
+  // saved/restored because collapsing can transiently shrink the document
+  // below the current offset and clamp it.
   const measure = () => {
     const savedY = window.scrollY;
+    const savedT = rows.map((r) => r.el.style.getPropertyValue('--t'));
     const saved = rows.map((r) => (r.desc ? {
       h: r.desc.style.height, v: r.desc.style.visibility,
       p: r.desc.style.paddingTop, o: r.desc.style.opacity,
     } : null));
 
+    // Stage A — collapse all, read natural heights.
     rows.forEach((r) => {
       r.el.style.setProperty('--t', '0');
       if (!r.desc) return;
@@ -101,9 +107,6 @@ export function init() {
       r.desc.style.opacity = '0';
       r.desc.style.visibility = 'hidden';
     });
-
-    openRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-
     rows.forEach((r) => {
       if (!r.desc) return;
       const s = r.desc.style;
@@ -114,7 +117,25 @@ export function init() {
       s.paddingTop = '0px';
     });
 
+    // Stage B — open all to natural height and read the expanded scroll range.
+    // This range (not the collapsed one) is the denominator: a constant, so
+    // prog depends only on scrollY — no feedback loop, no stationary drift —
+    // yet it spans the whole expanded page, so each row animates across a long
+    // stretch of scroll. The collapsed page barely overflows the viewport, so
+    // a collapsed denominator gave near-zero travel and the rows snapped.
+    rows.forEach((r) => {
+      r.el.style.setProperty('--t', '1');
+      if (!r.desc) return;
+      r.desc.style.paddingTop = '';
+      r.desc.style.height = `${r.natH}px`;
+      r.desc.style.opacity = '1';
+      r.desc.style.visibility = 'visible';
+    });
+    openRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+
+    // Restore prior inline state.
     rows.forEach((r, i) => {
+      r.el.style.setProperty('--t', savedT[i] || '0');
       if (!r.desc || !saved[i]) return;
       const s = r.desc.style;
       s.height = saved[i].h; s.visibility = saved[i].v;
