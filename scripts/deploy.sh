@@ -6,11 +6,16 @@
 # Pure git push — no GitHub Actions, no `workflow` OAuth scope required.
 # Usage:  npm run deploy
 #
+# Release gate: runs the full `npm run verify` (lint:css + ds-verify + build)
+# before publishing, so no deploy can ship design-system drift or a broken
+# build. This is the local equivalent of .github/workflows/ci.yml for hosts
+# whose git token lacks the `workflow` scope (can't push Actions workflows).
+#
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "→ Building…"
-npm run build
+echo "→ Verifying (lint + ds-verify + build)…"
+npm run verify
 
 SHA="$(git rev-parse --short HEAD)"
 REMOTE="$(git remote get-url origin)"
