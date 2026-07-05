@@ -107,14 +107,6 @@
 
 .service-content {
   flex: 1;
-  display: grid;
-  grid-template-rows: auto 0fr;
-  transition: grid-template-rows 0.55s cubic-bezier(0.22, 0.1, 0.25, 1);
-  will-change: grid-template-rows;
-}
-
-.service-row.active .service-content {
-  grid-template-rows: auto 1fr;
 }
 
 .service-name {
@@ -130,23 +122,20 @@
   font-weight: var(--fw-regular);
   color: var(--text-tertiary);
   line-height: 1.5;
-  min-height: 0;
   padding-top: var(--space-1);
   overflow: clip;
-  opacity: 0;
-
-  /* visibility:hidden removes collapsed descriptions from the a11y tree;
-     the 0.55s delay keeps it visible until the collapse transition ends. */
-  visibility: hidden;
-  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s,
-              visibility 0s linear 0.55s;
 }
 
-.service-row.active .service-desc {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s,
-              visibility 0s;
+/* Collapsed: zero the box and drop it from the a11y tree. These are static
+   states only — the expand/collapse motion lives in scroll-cascade.js (WAAPI,
+   explicit px heights). The old grid-template-rows transition animated a
+   layout property, reflowing the whole column every frame; staggered reveals
+   compounded those reflows into visible jank. */
+.service-row:not(.active) .service-desc {
+  height: 0;
+  padding-top: 0;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* ─── Quick actions ─── */
