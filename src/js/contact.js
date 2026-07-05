@@ -7,16 +7,30 @@ export function init(btnSelector = '#saveContactBtn') {
   const btn = document.querySelector(btnSelector);
   if (btn) btn.addEventListener('click', saveContact);
 }
-async function saveContact(e) {
-  e.preventDefault();
-  const res = await fetch(photoUrl);
-  const blob = await res.blob();
-  const dataUrl = await new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
-  const photo = String(dataUrl).split(',')[1];
+
+// Photo is a nice-to-have: if the fetch/encode fails for any reason, the
+// download must still happen — degrade to a photo-less vCard, never no-op.
+async function fetchPhotoLine() {
+  try {
+    const res = await fetch(photoUrl);
+    if (!res.ok) throw new Error(`photo fetch failed: ${res.status}`);
+    const blob = await res.blob();
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+    const photo = String(dataUrl).split(',')[1];
+    return photo ? [`PHOTO;TYPE=JPEG;ENCODING=b:${photo}`] : [];
+  } catch (err) {
+    console.warn('vCard photo unavailable, downloading without it', err);
+    return [];
+  }
+}
+
+async function saveContact() {
+  const photoLine = await fetchPhotoLine();
   const vcard = [
     'BEGIN:VCARD',
     'VERSION:3.0',
@@ -27,7 +41,8 @@ async function saveContact(e) {
     'TEL;TYPE=CELL:+18459780919',
     'EMAIL;TYPE=INTERNET:Lucas@Quiles.studio',
     'URL:https://quiles.studio',
-    `PHOTO;TYPE=JPEG;ENCODING=b:${photo}`,
+    'URL:https://github.com/LucasQuiles',
+    ...photoLine,
     'NOTE:AI agents\\, automation\\, full-stack development\\, infrastructure & security',
     'END:VCARD',
   ].join('\n');
