@@ -44,7 +44,11 @@ const CLICK_EASE = 0.22;   // per-frame approach for the click (pin) animation o
 const SETTLE_EPS = 0.004;  // |current − pin| below this snaps the click animation
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-const smoothstep = (v) => v * v * (3 - 2 * v);
+// Quintic ease (Perlin smootherstep): zero 1st AND 2nd derivative at 0 and 1,
+// so each row eases in and settles with no residual acceleration at the ends of
+// its travel — the cubic smoothstep it replaced still had a faint "arrive" snap.
+const smootherstep = (v) => v * v * v * (v * (v * 6 - 15) + 10);
+const RISE = 8; // px the description content glides up as it reveals (compositor transform)
 
 export function init() {
   const els = Array.from(document.querySelectorAll('.service-row'));
@@ -55,12 +59,33 @@ export function init() {
   const rows = els.map((el) => ({
     el,
     desc: el.querySelector('.service-desc'),
+    inner: null, // rise/fade target — the description text wrapped so it can be
+                 // translated inside the height-clipping box (set just below)
     natH: 0,
     current: 0,
     pin: null, // null → scroll-driven; 0 or 1 → user-pinned
     aria: null, // last-written aria-expanded boolean (paint skips no-op writes)
     vis: null,  // last-written visibility boolean
   }));
+
+  // Wrap each description's text in an inline block so the reveal can glide the
+  // content up (translateY) and fade it inside the box whose height animates —
+  // the box is the clip window; the inner element moves within it. Done in JS so
+  // the markup stays clean and no HTML entities are hand-edited. offsetHeight of
+  // the (auto-height) box is unchanged by the wrapper, so measure() still reads
+  // the true natural height.
+  rows.forEach((r) => {
+    if (!r.desc) return;
+    let inner = r.desc.querySelector(':scope > .service-desc-inner');
+    if (!inner) {
+      inner = document.createElement('span');
+      inner.className = 'service-desc-inner';
+      inner.style.display = 'block';
+      while (r.desc.firstChild) inner.appendChild(r.desc.firstChild);
+      r.desc.appendChild(inner);
+    }
+    r.inner = inner;
+  });
 
   // Reduced motion: a static, fully readable list is calmest. Click still
   // toggles (instant) so the control keeps its contract.
@@ -165,8 +190,16 @@ export function init() {
     const d = r.desc;
     if (!d) return;
     d.style.height = `${(t * r.natH).toFixed(2)}px`;
-    // Text fades in a touch ahead of full height so it reads before it lands.
-    d.style.opacity = clamp01(t * 1.15).toFixed(3);
+    // Opacity leads height slightly (t·1.15) so text reads before it fully
+    // lands, then rides a quintic ease so the fade slows in and out rather than
+    // ramping linearly. The content also glides up RISE→0 px on a compositor
+    // transform, so it rises into place inside the clipping box (GPU, no reflow).
+    if (r.inner) {
+      r.inner.style.opacity = smootherstep(clamp01(t * 1.15)).toFixed(3);
+      r.inner.style.transform = t > 0.999 ? '' : `translateY(${((1 - t) * RISE).toFixed(2)}px)`;
+    } else {
+      d.style.opacity = clamp01(t * 1.15).toFixed(3);
+    }
     const vis = t > 0.001;
     if (r.vis !== vis) {
       d.style.visibility = vis ? 'visible' : 'hidden';
@@ -177,7 +210,7 @@ export function init() {
   const SPAN = rows.length + SPREAD;
   const targetFor = (i) => {
     const prog = clamp01(window.scrollY / openRange);
-    return smoothstep(clamp01((prog * SPAN - i) / SPREAD));
+    return smootherstep(clamp01((prog * SPAN - i) / SPREAD));
   };
 
   // Scroll → a rAF ticker, not a per-event paint. A scroll listener that paints
@@ -202,7 +235,7 @@ export function init() {
       const prog = clamp01(y / openRange);
       rows.forEach((r, i) => {
         if (r.pin !== null) return;
-        const t = smoothstep(clamp01((prog * SPAN - i) / SPREAD));
+        const t = smootherstep(clamp01((prog * SPAN - i) / SPREAD));
         if (r.current !== t) { r.current = t; paint(r); }
       });
     }
