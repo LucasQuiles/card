@@ -216,3 +216,62 @@ body {
   .tagline, .services, .quick-actions, .card-footer, .footer-cta-section { padding-left: var(--space-6); padding-right: var(--space-6); }
   .divider { margin: 0 var(--space-6); }
 }
+
+/* ─── Orchestrated entrance ───────────────────────────────────────────────
+   One well-composed page-load reveal: the card fades up as a whole, then its
+   direct children cascade in top-to-bottom (header → actions → tagline →
+   services → CTA → buttons → powered-by), each rising 12px into place. The
+   curve is ease-out-quint — the CSS twin of the accordion's quintic
+   smootherstep — so every element decelerates to a dead stop with no residual
+   acceleration, matching the scroll motion's feel rather than fighting it.
+
+   Compositor-only (opacity + translateY), so there is zero reflow: the reveal
+   runs entirely on the GPU and cannot perturb scroll-cascade.js's init
+   measure() (transforms do not change offsetHeight or scrollHeight). The whole
+   block lives under prefers-reduced-motion:no-preference, so reduced-motion
+   users never see opacity:0 — the animation rules simply do not exist for them
+   and every element paints at its natural resting state. --stagger is the
+   per-child step; nth-child multiplies it so the cascade needs no per-element
+   class. */
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    --stagger: 70ms;
+    /* backwards, not both: hold the hidden first frame through the delay (no
+       pre-flash) but drop the applied styles once the reveal ends, so no
+       transform/opacity lingers and no idle compositor layer is left behind —
+       the same at-rest cleanliness scroll-cascade.js keeps for the rows. */
+    animation: card-rise 0.7s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+  }
+
+  .card > * {
+    animation: child-rise 0.6s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+    /* Children start one card-fade in, then step down the list. */
+    animation-delay: calc(0.12s + var(--i, 0) * var(--stagger));
+  }
+
+  /* Ordinal per direct child — drives the cascade delay. Covers the card's
+     11 top-level blocks (content sections + dividers); extra selectors are
+     harmless no-ops if the count changes. */
+  .card > *:nth-child(1)  { --i: 0; }
+  .card > *:nth-child(2)  { --i: 1; }
+  .card > *:nth-child(3)  { --i: 2; }
+  .card > *:nth-child(4)  { --i: 3; }
+  .card > *:nth-child(5)  { --i: 4; }
+  .card > *:nth-child(6)  { --i: 5; }
+  .card > *:nth-child(7)  { --i: 6; }
+  .card > *:nth-child(8)  { --i: 7; }
+  .card > *:nth-child(9)  { --i: 8; }
+  .card > *:nth-child(10) { --i: 9; }
+  .card > *:nth-child(11) { --i: 10; }
+  .card > *:nth-child(12) { --i: 11; }
+
+  @keyframes card-rise {
+    from { opacity: 0; transform: translateY(16px) scale(0.994); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes child-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+  }
+}

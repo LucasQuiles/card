@@ -39,7 +39,7 @@
 // the scroll sampler then leaves it alone. Reduced motion: every row opens
 // statically and the sampler never runs.
 
-const SPREAD = 2.5;        // rows morphing together — higher = wider, softer focus
+const SPREAD = 3.0;        // rows morphing together — higher = wider, softer focus
 const CLICK_EASE = 0.22;   // per-frame approach for the click (pin) animation only
 const SETTLE_EPS = 0.004;  // |current − pin| below this snaps the click animation
 

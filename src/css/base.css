@@ -5,7 +5,16 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; overflow-x: hidden; }
+/* overscroll-behavior-y: contain stops scroll-chaining and the rubber-band
+   bleed past the top/bottom of the document — the page feels self-contained and
+   solid under the finger instead of handing momentum off to the browser chrome.
+   It does NOT touch native momentum/inertia (that stays the platform's job —
+   the smoothest scroll is the one we don't hijack). */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
 
 body {
   font-family: var(--font-sans);
