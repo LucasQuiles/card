@@ -55,6 +55,16 @@ export function init() {
   if (!els.length) return;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Coarse pointer = touch is the PRIMARY input (phones, tablets). The
+  // scroll-driven morph is a fine-pointer (wheel/trackpad) delight: it couples
+  // scrolling-through-the-document with expanding-content, which on touch fights
+  // direct manipulation — the page grows under the finger so content stops
+  // tracking the drag 1:1, and iOS momentum coalesces scroll events into a
+  // stepped morph against a page height that is changing mid-coast. On coarse
+  // pointers the rows rest collapsed and open on TAP instead (same eased pin
+  // animation), leaving native scroll/momentum completely untouched. Hybrid
+  // laptops with a trackpad report a fine primary pointer and keep the morph.
+  const coarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
   const rows = els.map((el) => ({
     el,
@@ -287,6 +297,25 @@ export function init() {
     });
   });
 
+  measure();
+
+  // Touch (coarse pointer): no scroll-driven morph. Rows rest collapsed and the
+  // tap handler above (pin → eased animate) owns every open/close. No scroll
+  // listener is attached, so momentum/inertia is entirely the platform's — the
+  // page reflows naturally below a tapped row, and nothing tracks the finger but
+  // the finger. Resize only re-reads natural heights so the tap animation lands
+  // at the right height; current openness (collapsed, or a user-pinned row) is
+  // preserved and repainted.
+  if (coarsePointer) {
+    rows.forEach((r) => { r.current = 0; paint(r); });
+    window.addEventListener('resize', () => {
+      measure();
+      rows.forEach((r) => paint(r));
+    }, { passive: true });
+    return;
+  }
+
+  // Fine pointer (wheel/trackpad): full scroll-driven accordion.
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', () => {
     measure();
@@ -296,6 +325,5 @@ export function init() {
     });
   }, { passive: true });
 
-  measure();
   rows.forEach((r, i) => { r.current = targetFor(i); paint(r); });
 }
