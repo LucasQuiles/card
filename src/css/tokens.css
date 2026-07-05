@@ -99,6 +99,7 @@
      since blur/offset px do not map onto the spacing scale) */
   --shadow-card-hover: 0 12px 48px rgb(0 0 0 / 40%), 0 0 0 1px rgb(255 255 255 / 4%);
   --shadow-row-active: 0 2px 12px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 3%);
+  --shadow-row-shade: rgb(0 0 0 / 20%);   /* drop-shadow colour, faded by --t on the service rows */
   --shadow-action-hover: 0 4px 16px rgb(0 0 0 / 30%);
   --shadow-btn-primary-hover: 0 4px 20px rgb(255 255 255 / 10%);   /* .btn-primary:hover */
   --shadow-btn-secondary-hover: 0 4px 16px rgb(0 0 0 / 20%);       /* .btn-secondary:hover */

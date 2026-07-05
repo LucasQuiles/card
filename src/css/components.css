@@ -43,52 +43,65 @@
 .card:hover::before { opacity: 1; }
 
 /* ─── Service rows ─── */
+
+/* Openness is a continuous 0→1 value per row, written to --t by
+   scroll-cascade.js on every scroll frame (rAF, eased). The row chrome
+   (background, border, shadow, padding, and the +/− marker) interpolates off
+   --t in calc(); the description box's height/opacity is set inline in px by
+   the same loop. There is no .active class and no CSS transition on the driven
+   props — a transition would fight the per-frame writes and reintroduce the
+   choppiness this replaced. At the top of the scroll every row rests at t=0
+   (collapsed); scrolling lifts each row's top edge through a wide focus band
+   (0.28→0.82 vh) to t=1 (expanded), reversibly in both directions. */
 .service-row {
+  --t: 0;
+
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: var(--space-3_5);
-  padding: var(--space-3) var(--space-2_5);
+  padding:
+    calc(var(--space-3) + var(--t) * (var(--space-3_5) - var(--space-3)))
+    calc(var(--space-2_5) + var(--t) * (var(--space-3) - var(--space-2_5)))
+    calc(var(--space-3) + var(--t) * (var(--space-4) - var(--space-3)));
   margin: 0 calc(-1 * var(--space-2_5));
   border-radius: 10px;
   border: 1px solid transparent;
+  border-color: color-mix(in srgb, transparent, var(--tint-06) calc(var(--t) * 100%));
+  background: color-mix(in srgb, transparent, var(--tint-03) calc(var(--t) * 100%));
+  box-shadow:
+    0 0.125rem 0.75rem color-mix(in srgb, transparent, var(--shadow-row-shade) calc(var(--t) * 100%)),
+    inset 0 0.0625rem 0 color-mix(in srgb, transparent, var(--tint-03) calc(var(--t) * 100%));
   cursor: pointer;
-  background: none;
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: background 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-              padding 0.45s cubic-bezier(0.22, 0.1, 0.25, 1),
-              border-color 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-              box-shadow 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .service-row + .service-row {
   margin-top: var(--space-1);
 }
 
-.service-row.active {
-  background: var(--tint-03);
-  border-color: var(--tint-06);
-  padding: var(--space-3_5) var(--space-3) var(--space-4);
-  box-shadow: var(--shadow-row-active);
-}
-
+/* +/− marker drawn from two bars so it morphs continuously with openness:
+   the vertical bar's length scales to zero as --t → 1, leaving the horizontal
+   bar (a minus). Both are absolutely positioned so DOM/flex order is free and
+   the bars stay crossed on a shared centre; their anchor tracks the row's
+   growing padding so the marker rides with the first text line. */
+.service-row::before,
 .service-row::after {
-  content: '+';
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: var(--fw-regular);
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: var(--space-0_5);
-  transition: color 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  content: '';
+  position: absolute;
+  top: calc(var(--space-3) + var(--t) * (var(--space-3_5) - var(--space-3)) + 0.42rem);
+  right: calc(var(--space-2_5) + var(--t) * (var(--space-3) - var(--space-2_5)));
+  width: 0.66rem;
+  height: 0.1rem;
+  border-radius: 1px;
+  background: var(--text-tertiary);
 }
 
-.service-row.active::after {
-  content: '\2212';
-  color: var(--text-secondary);
+.service-row::before {
+  transform: rotate(90deg) scaleX(calc(1 - var(--t)));
 }
 
 .service-icon {
@@ -100,13 +113,13 @@
   transition: opacity 0.3s ease;
 }
 
-.service-row:hover .service-icon,
-.service-row.active .service-icon {
+.service-row:hover .service-icon {
   opacity: 0.55;
 }
 
 .service-content {
   flex: 1;
+  padding-right: 1.25rem; /* reserve the column the absolute +/− marker sits in */
 }
 
 .service-name {
@@ -117,37 +130,37 @@
   margin-bottom: var(--space-0_5);
 }
 
+/* Description box. Rests collapsed and out of the a11y tree; scroll-cascade.js
+   drives height / padding-top / opacity / visibility inline in px off the
+   openness value. Natural padding-top (--space-1) is what the JS measures the
+   box against, and it interpolates from 0 alongside height. Do NOT add a CSS
+   transition here: the old grid-template-rows transition animated a layout
+   property and reflowed the whole column every frame — the choppiness the
+   continuous driver replaced. */
 .service-desc {
   font-size: 0.75rem;
   font-weight: var(--fw-regular);
   color: var(--text-tertiary);
   line-height: 1.5;
   padding-top: var(--space-1);
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
   overflow: clip;
 }
 
-/* Collapsed: zero the box and drop it from the a11y tree. These are static
-   states only — the scroll-driven accordion motion (rows expand entering the
-   viewport's reading zone, collapse leaving it, both directions) lives in
-   scroll-cascade.js (WAAPI, explicit px heights). Do NOT reintroduce CSS
-   transitions here: the old grid-template-rows transition animated a layout
-   property, reflowing the whole column every frame; staggered reveals
-   compounded those reflows into visible jank. */
-.service-row:not(.active) .service-desc {
-  height: 0;
-  padding-top: 0;
-  opacity: 0;
-  visibility: hidden;
-}
-
-/* Reduced motion: JS opens every row up front (a static, fully readable list
-   is calmer than content toggling mid-scroll) and skips WAAPI entirely; kill
-   the row's own hover/active transitions too so click-toggles are instant. */
+/* Reduced motion: a static, fully readable list is calmer than content
+   toggling mid-scroll. JS opens every row up front and skips the sampler; pin
+   the chrome open here too so it holds even before the script runs. */
 @media (prefers-reduced-motion: reduce) {
-  .service-row,
-  .service-row::after,
-  .service-icon {
-    transition: none;
+  .service-row {
+    --t: 1;
+  }
+
+  .service-desc {
+    height: auto;
+    opacity: 1;
+    visibility: visible;
   }
 }
 
