@@ -2,17 +2,44 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lucas Quiles — Quiles Studio</title>
 <meta name="description" content="Lucas Quiles, Founder of Quiles Studio — AI-powered agents, automation, and full-stack engineering for growing businesses.">
+<link rel="canonical" href="https://lucasquiles.github.io/card/">
 <meta property="og:title" content="Lucas Quiles — Quiles Studio">
 <meta property="og:description" content="AI agents, automation, and engineering for businesses that move fast.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://card.quiles.studio">
+<meta property="og:url" content="https://lucasquiles.github.io/card/">
+<meta property="og:image" content="https://lucasquiles.github.io/card/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lucas Quiles — Quiles Studio">
+<meta name="twitter:description" content="AI agents, automation, and engineering for businesses that move fast.">
+<meta name="twitter:image" content="https://lucasquiles.github.io/card/og-image.png">
 <meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lucas Quiles",
+  "jobTitle": "Founder",
+  "worksFor": { "@type": "Organization", "name": "Quiles Studio", "url": "https://quiles.studio" },
+  "url": "https://lucasquiles.github.io/card/",
+  "email": "mailto:Lucas@Quiles.studio",
+  "telephone": "+1-845-978-0919",
+  "sameAs": ["https://github.com/LucasQuiles"]
+}
+</script>
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/components.css">
@@ -28,7 +55,7 @@
   <!-- Header -->
   <div class="card-header">
     <div class="logo-mark">
-      <img src="./assets/q-logo-dark-transparent.png" alt="Q." width="136" height="136">
+      <img src="./assets/q-mark-white.svg" alt="Q." width="136" height="100">
     </div>
     <h1 class="name">Lucas Quiles</h1>
     <div class="title-line">Founder &middot; Quiles Studio</div>
@@ -48,7 +75,7 @@
 
   <!-- Services -->
   <div class="services">
-    <div class="services-label">What we do</div>
+    <h2 class="services-label">What we do</h2>
     <div class="service-list">
 
       <button class="service-row" type="button" aria-expanded="false">
@@ -57,7 +84,7 @@
         </svg>
         <div class="service-content">
           <div class="service-name">Forward-Deployed Agents</div>
-          <div class="service-desc">Engineers and AI agents deployed directly within your operations &mdash; working alongside your teams, not from the outside looking in. Locally managed, cloud, or on-premise <em>solutions available.</em></div>
+          <div class="service-desc">Engineers and AI agents deployed directly within your operations &mdash; working alongside your teams, not from the outside looking in. Locally managed, cloud, or on-premise solutions available.</div>
         </div>
       </button>
 
@@ -69,7 +96,7 @@
         </svg>
         <div class="service-content">
           <div class="service-name">Systems Integration</div>
-          <div class="service-desc">Not another SaaS. Not another dashboard. We build the connective layer that gives your existing tools a shared <em>knowledge layer</em> and your agents a working memory &mdash; one brain across your entire operation, and one agentic experience across all of your sessions.</div>
+          <div class="service-desc">Not another SaaS. Not another dashboard. We build the connective layer that gives your existing tools a shared knowledge layer and your agents a working memory &mdash; one brain across your entire operation, and one agentic experience across all of your sessions.</div>
         </div>
       </button>
 
@@ -110,15 +137,15 @@
 
   <!-- CTA -->
   <div class="footer-cta-section">
-    <div class="footer-cta">Let's build something.</div>
-    <p class="footer-text">We embed with your team to build AI agents, internal tools, and the infrastructure behind them. No handoffs, no templates&mdash;just working software shaped to how you operate.</p>
+    <div class="footer-cta">Let&rsquo;s build something.</div>
+    <p class="footer-text">We embed with your team to build AI agents, internal tools, and the infrastructure behind them. No handoffs, no templates &mdash; just working software shaped to how you operate.</p>
   </div>
 
   <div class="divider"></div>
 
   <!-- Action buttons -->
   <div class="card-footer">
-    <a href="#" class="btn btn-primary" id="saveContactBtn">
+    <button type="button" class="btn btn-primary" id="saveContactBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="4" width="20" height="16" rx="2"/>
         <circle cx="9" cy="11" r="2.5"/>
@@ -127,7 +154,7 @@
         <line x1="16" y1="13" x2="19" y2="13"/>
       </svg>
       Save Contact
-    </a>
+    </button>
     <a href="./portfolio.html" class="btn btn-secondary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1.5"/>
