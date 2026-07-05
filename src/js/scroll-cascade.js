@@ -49,6 +49,12 @@ const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 // its travel — the cubic smoothstep it replaced still had a faint "arrive" snap.
 const smootherstep = (v) => v * v * v * (v * (v * 6 - 15) + 10);
 const RISE = 8; // px the description content glides up as it reveals (compositor transform)
+// Below this many px of scrollable travel a scroll-driven morph is not usable:
+// a maximized window on a tall monitor fits the whole expanded card, leaving
+// little (crushed morph) or no (dead, un-openable) scroll. We then render the
+// list statically open — the card fits, so its resting state IS fully expanded —
+// instead of a crushed or inert morph, and skip the reserved-height floor.
+const SCROLL_MIN = 240;
 
 export function init() {
   const els = Array.from(document.querySelectorAll('.service-row'));
@@ -116,6 +122,8 @@ export function init() {
   }
 
   let openRange = 1;
+  let fullDocH = 0;       // fully-expanded document height; content-bound in scroll mode
+  let staticOpen = false; // true → no usable scroll: render every row open, skip the floor
 
   // ── Reserved scroll length (constant document height) ──────────────────────
   // The morph maps openness to scroll position against a FIXED denominator
@@ -145,6 +153,7 @@ export function init() {
   // a constant floor removes the wobble at the source.
   const card = document.getElementById('card') || els[0].closest('.card');
   const sizeHost = card ? card.parentNode : null; // container that carries the floor
+  if (!sizeHost) console.warn('[scroll-cascade] no #card/.card container — reserved-height floor disabled; document height will vary as rows morph.');
 
   // One synchronous read pass in two stages (no paint happens until control
   // returns to the event loop, so nothing flashes). Stage A collapses every
@@ -200,7 +209,15 @@ export function init() {
     // constant. Read while every row is open (before the restore below), with the
     // floor cleared (top of measure), so it is the TRUE expanded height.
     const reservedH = sizeHost ? sizeHost.offsetHeight : 0;
-    openRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    // Cache the expanded document height so a dynamic-viewport change can recompute
+    // openRange arithmetically (no reflow). Content-bound whenever content overflows
+    // the viewport (scroll mode); viewport-bound only on tall viewports, where we
+    // are in static-open mode anyway and the value is not used to drive the morph.
+    fullDocH = document.documentElement.scrollHeight;
+    openRange = Math.max(1, fullDocH - window.innerHeight);
+    // No usable scroll distance → the card fits the viewport; a scroll-driven morph
+    // would be crushed into a few px or fully inert. Render static-open instead.
+    staticOpen = openRange < SCROLL_MIN;
 
     // Restore prior inline state.
     rows.forEach((r, i) => {
@@ -213,7 +230,9 @@ export function init() {
     // Apply the floor: the container can no longer shrink below its expanded
     // height, so collapsing rows leave reserved (already-counted) space rather
     // than shortening the document. One write per measure, never during scroll.
-    if (sizeHost) sizeHost.style.minHeight = `${reservedH}px`;
+    // Skipped in static-open mode (no morph to reserve for) so the card keeps its
+    // natural height instead of a min-height that would strand dead space.
+    if (sizeHost && !staticOpen) sizeHost.style.minHeight = `${reservedH}px`;
     if (window.scrollY !== savedY) window.scrollTo(0, savedY);
   };
 
@@ -255,10 +274,15 @@ export function init() {
   };
 
   const SPAN = rows.length + SPREAD;
-  const targetFor = (i) => {
-    const prog = clamp01(window.scrollY / openRange);
-    return smootherstep(clamp01((prog * SPAN - i) / SPREAD));
-  };
+  // Single source of the openness mapping (was duplicated verbatim in tick() and
+  // targetFor()). prog is computed ONCE per frame by the caller and passed in, so
+  // a batched paint loop never interleaves a scrollY read between style writes
+  // (the read-after-write that forces a synchronous layout per row).
+  const opennessAt = (prog, i) => smootherstep(clamp01((prog * SPAN - i) / SPREAD));
+  // Live target for a row: fully open when there is no usable scroll (static-open),
+  // else the scroll-mapped openness. Callers pass the once-per-frame prog.
+  const liveTarget = (prog, i) => (staticOpen ? 1 : opennessAt(prog, i));
+  const progNow = () => clamp01(window.scrollY / openRange);
 
   // Scroll → a rAF ticker, not a per-event paint. A scroll listener that paints
   // on each event is capped at the browser's scroll-event cadence, which on iOS
@@ -279,20 +303,29 @@ export function init() {
   let ticking = false;
   let lastY = -1;
   let idle = 0;
+  let pinAnchorY = 0; // scrollY captured when a row is pinned; release when scroll leaves it
   const tick = () => {
     const y = window.scrollY;
     if (y === lastY) {
       if (++idle > 3) { ticking = false; return; } // settled → release the loop
     } else {
-      const first = lastY === -1; // first painted frame of this scroll gesture
       idle = 0;
       lastY = y;
       const prog = clamp01(y / openRange);
       let released = false;
       rows.forEach((r, i) => {
-        if (!first && r.pin !== null) { r.pin = null; r.sync = true; released = true; return; }
-        if (r.pin !== null || r.sync) return; // pinned / re-aligning → animate owns it
-        const t = smootherstep(clamp01((prog * SPAN - i) / SPREAD));
+        // A pinned row is released by GENUINE scroll movement away from where it was
+        // pinned — compared against pinAnchorY, not the ticker's per-wake lastY.
+        // (lastY resets to -1 on every wake, so a single-sample scroll — one wheel
+        // notch that settles within a frame — used to skip the only frame movement
+        // was visible and never release. Anchoring to pin-time scrollY releases on
+        // the first moved frame regardless of how coarsely the scroll is sampled.)
+        if (r.pin !== null) {
+          if (y !== pinAnchorY) { r.pin = null; r.sync = true; released = true; }
+          return; // pinned, or just released → animate owns the eased glide back
+        }
+        if (r.sync) return; // re-aligning → animate owns it
+        const t = staticOpen ? 1 : opennessAt(prog, i);
         if (r.current !== t) { r.current = t; paint(r); }
       });
       if (released) kickAnim(); // ease the just-released rows back into the set
@@ -312,14 +345,17 @@ export function init() {
   let animating = false;
   const animate = () => {
     let moving = false;
+    // prog read ONCE per frame (not per row) so the per-row loop never interleaves
+    // a scrollY read between paint() writes. A sync in progress tracks an ongoing
+    // scroll because animate re-runs each frame with a fresh prog.
+    const prog = progNow();
     rows.forEach((r, i) => {
       // A pinned row eases to its fixed pin target; a released (r.sync) row eases
       // to its LIVE scroll target — so it catches up to where the scroll mapping
-      // now wants it and rejoins the set seamlessly. targetFor(i) reads the
-      // current scrollY, so a sync in progress tracks an ongoing scroll.
+      // now wants it and rejoins the set seamlessly.
       let target;
       if (r.pin !== null) target = r.pin;
-      else if (r.sync) target = targetFor(i);
+      else if (r.sync) target = liveTarget(prog, i);
       else return;
       const diff = target - r.current;
       if (Math.abs(diff) < SETTLE_EPS) {
@@ -344,6 +380,7 @@ export function init() {
     r.el.addEventListener('click', () => {
       r.pin = r.current > 0.5 ? 0 : 1;
       r.sync = false; // a fresh tap cancels any in-progress re-alignment
+      pinAnchorY = window.scrollY; // release this pin when the page scrolls away from here
       kickAnim();
     });
   });
@@ -377,13 +414,58 @@ export function init() {
   // (the page grows as you approach it) — so we re-measure once fonts are ready.
   const relayout = () => {
     measure();
+    const prog = progNow();
     rows.forEach((r, i) => {
-      if (r.pin === null) r.current = targetFor(i);
+      // Snap only rows the scroll mapping owns. A row mid-glide back from a pin
+      // release (r.sync, pin already null) is left to animate()'s eased catch-up,
+      // or it would pop to target instantly.
+      if (r.pin === null && !r.sync) r.current = liveTarget(prog, i);
       paint(r);
     });
   };
-  window.addEventListener('resize', relayout, { passive: true });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
 
-  rows.forEach((r, i) => { r.current = targetFor(i); paint(r); });
+  // Coalesce relayout to at most one run per frame, and never re-measure while a
+  // scroll is in flight: measure() collapses rows and calls scrollTo to restore
+  // position, which would fight an in-progress native/momentum scroll (a mobile
+  // toolbar resize fires DURING the scroll that drives this feature). Defer the
+  // run until the ticker reports idle.
+  let relayoutQueued = false;
+  const queueRelayout = () => {
+    if (relayoutQueued) return;
+    relayoutQueued = true;
+    const run = () => {
+      if (ticking) { requestAnimationFrame(run); return; } // scroll live → wait it out
+      relayoutQueued = false;
+      relayout();
+    };
+    requestAnimationFrame(run);
+  };
+  window.addEventListener('resize', queueRelayout, { passive: true });
+
+  // Dynamic viewport (mobile URL-bar collapse) changes innerHeight WITHOUT firing
+  // window 'resize' — it fires visualViewport 'resize' instead — leaving openRange
+  // stale so scroll past the old range goes dead near the bottom. Recompute
+  // openRange arithmetically from the cached expanded height: no reflow, no
+  // scrollTo, safe to run mid-scroll. If the change crosses the static-open
+  // threshold, defer to a full remeasure (which also restores/clears the floor).
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      const wasStatic = staticOpen;
+      openRange = Math.max(1, fullDocH - window.innerHeight);
+      staticOpen = openRange < SCROLL_MIN;
+      if (staticOpen !== wasStatic) { queueRelayout(); return; }
+      const prog = progNow();
+      rows.forEach((r, i) => { if (r.pin === null && !r.sync) { r.current = liveTarget(prog, i); paint(r); } });
+    }, { passive: true });
+  }
+
+  // Re-measure once web fonts swap in (init measured with fallback metrics, so the
+  // floor locks a few px short). Skip the extra two-reflow measure when fonts were
+  // already loaded on a warm cache — no reflow will follow, so nothing to correct.
+  if (document.fonts && document.fonts.ready && document.fonts.status !== 'loaded') {
+    document.fonts.ready.then(queueRelayout);
+  }
+
+  const prog0 = progNow();
+  rows.forEach((r, i) => { r.current = liveTarget(prog0, i); paint(r); });
 }
