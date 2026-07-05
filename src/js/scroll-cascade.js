@@ -1,31 +1,40 @@
 // scroll-cascade.js — continuous scroll-driven accordion for the service rows.
 //
-// Openness is a function of overall scroll progress, sampled every frame — not
-// a set of discrete open/close events. Page progress p = scrollY / maxScroll
-// runs 0→1 top→bottom; each row opens across an overlapping sub-range of p, so
-// the list is fully collapsed at the top of the scroll and fully expanded at
-// the bottom, on any viewport, reversibly and with no snap. SPREAD sets how
-// many rows morph together — a wide, soft focus band that sweeps down the list
-// as you scroll rather than one row toggling at a time.
+// Openness is a function of how far the page has been scrolled, measured
+// against a FIXED range — the scrollable distance when every row is collapsed,
+// captured once. Progress prog = clamp(scrollY / openRange) runs 0→1; each row
+// opens across an overlapping sub-range of prog:
 //
-//   t_i = smoothstep( clamp( (p·(N + SPREAD) − i) / SPREAD ) )
+//   t_i = smoothstep( clamp( (prog·(N + SPREAD) − i) / SPREAD ) )
 //
-// At p=0 every term is ≤0 → all rows collapsed; at p=1 every term is >1 → all
-// rows expanded. Endpoints are exact because scrollY is pinned there, so the
-// growing page height (rows add height as they open) can't drift the ends.
+// so the list is fully collapsed at the top of the scroll (prog=0) and fully
+// expanded by the collapsed-height bottom (prog=1). Opening adds height beyond
+// that, and the rows stay expanded through it, so they are expanded at the true
+// bottom on any viewport — reversibly, with a wide focus band (SPREAD rows
+// morph together) sweeping down the list.
+//
+// Why a FIXED range, and why no easing on scroll: the live document height
+// grows as rows open, so a live denominator (scrollY / liveScrollHeight) is a
+// feedback loop — open → taller page → less progress → close → shorter page →
+// open … — and an eased follow keeps animating after the wheel stops. Together
+// they make the page drift and grow for a beat after you stop scrolling: the
+// jumpiness. Pinning the denominator to the collapsed range makes prog depend
+// only on scrollY, a stable input; painting unpinned rows straight to their
+// target each frame ties openness to the wheel 1:1 with no settling. Rows only
+// ever grow/shrink at or below the reading position (higher-index rows sit
+// lower and open later), so expansion pushes off-screen content down rather
+// than shoving what is being read.
 //
 // t drives the row chrome through the CSS custom property --t (background,
-// border, shadow, padding, and the +/− marker all interpolate in calc()); the
-// JS writes the description box's height/opacity/visibility inline in px. A
-// per-row eased follow (current lerps toward target each frame) low-passes any
-// residual layout jitter into a smooth glide and doubles as the click
-// animation. Click pins a row (open or closed) under permanent user control;
-// the sampler then leaves it alone. Reduced motion: every row opens statically
-// and the rAF sampler never runs.
+// border, shadow, padding, and the +/− marker interpolate in calc()); the JS
+// writes the description box height/opacity/visibility inline in px. Click pins
+// a row (open or closed) under permanent user control and animates it there;
+// the scroll sampler then leaves it alone. Reduced motion: every row opens
+// statically and the sampler never runs.
 
 const SPREAD = 2.5;        // rows morphing together — higher = wider, softer focus
-const EASE_FACTOR = 0.24;  // per-frame approach to target; higher = snappier
-const SETTLE_EPS = 0.004;  // |current − target| below this snaps and the loop idles
+const CLICK_EASE = 0.22;   // per-frame approach for the click (pin) animation only
+const SETTLE_EPS = 0.004;  // |current − pin| below this snaps the click animation
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const smoothstep = (v) => v * v * (3 - 2 * v);
@@ -41,16 +50,14 @@ export function init() {
     desc: el.querySelector('.service-desc'),
     natH: 0,
     current: 0,
-    target: 0,
     pin: null, // null → scroll-driven; 0 or 1 → user-pinned
   }));
 
-  // Reduced motion: a fully open, static list is the calmest readable state.
-  // Skip the sampler entirely; click still toggles (instant) so the control
-  // keeps its contract.
+  // Reduced motion: a static, fully readable list is calmest. Click still
+  // toggles (instant) so the control keeps its contract.
   if (reducedMotion) {
     rows.forEach((r) => {
-      r.current = r.target = 1;
+      r.current = 1;
       r.el.style.setProperty('--t', '1');
       r.el.setAttribute('aria-expanded', 'true');
       if (r.desc) {
@@ -72,23 +79,50 @@ export function init() {
     return;
   }
 
-  // Measure each description's natural (fully open) height — one read pass.
+  let openRange = 1;
+
+  // Force every row collapsed for one synchronous read pass (no paint happens
+  // until control returns to the event loop, so nothing flashes): capture each
+  // description's natural height and the collapsed scroll range, then restore.
+  // scrollY is saved/restored because collapsing can transiently shrink the
+  // document below the current offset and clamp it.
   const measure = () => {
+    const savedY = window.scrollY;
+    const saved = rows.map((r) => (r.desc ? {
+      h: r.desc.style.height, v: r.desc.style.visibility,
+      p: r.desc.style.paddingTop, o: r.desc.style.opacity,
+    } : null));
+
     rows.forEach((r) => {
-      const d = r.desc;
-      if (!d) return;
-      const s = d.style;
-      const save = { h: s.height, v: s.visibility, p: s.paddingTop, o: s.opacity };
-      s.visibility = 'hidden';
-      s.opacity = '0';
-      s.paddingTop = '';       // fall back to the CSS natural padding-top
-      s.height = 'auto';
-      r.natH = d.offsetHeight; // includes the natural padding-top
-      s.height = save.h; s.visibility = save.v; s.paddingTop = save.p; s.opacity = save.o;
+      r.el.style.setProperty('--t', '0');
+      if (!r.desc) return;
+      r.desc.style.height = '0px';
+      r.desc.style.paddingTop = '0px';
+      r.desc.style.opacity = '0';
+      r.desc.style.visibility = 'hidden';
     });
+
+    openRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+
+    rows.forEach((r) => {
+      if (!r.desc) return;
+      const s = r.desc.style;
+      s.paddingTop = '';   // fall back to the CSS natural padding-top
+      s.height = 'auto';
+      r.natH = r.desc.offsetHeight;
+      s.height = '0px';
+      s.paddingTop = '0px';
+    });
+
+    rows.forEach((r, i) => {
+      if (!r.desc || !saved[i]) return;
+      const s = r.desc.style;
+      s.height = saved[i].h; s.visibility = saved[i].v;
+      s.paddingTop = saved[i].p; s.opacity = saved[i].o;
+    });
+    if (window.scrollY !== savedY) window.scrollTo(0, savedY);
   };
 
-  // Write a row's current openness to the DOM.
   const paint = (r) => {
     r.el.style.setProperty('--t', r.current.toFixed(4));
     r.el.setAttribute('aria-expanded', r.current > 0.5 ? 'true' : 'false');
@@ -100,54 +134,69 @@ export function init() {
     d.style.visibility = r.current > 0.001 ? 'visible' : 'hidden';
   };
 
-  // Read pass: each row's target from overall page scroll progress.
-  const sample = () => {
-    const maxY = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    const p = clamp01(window.scrollY / maxY);
-    const reach = p * (rows.length + SPREAD);
-    rows.forEach((r, i) => {
-      if (r.pin !== null) { r.target = r.pin; return; }
-      r.target = smoothstep(clamp01((reach - i) / SPREAD));
+  const targetFor = (i) => {
+    const prog = clamp01(window.scrollY / openRange);
+    return smoothstep(clamp01((prog * (rows.length + SPREAD) - i) / SPREAD));
+  };
+
+  // Scroll: paint every unpinned row straight to its target — 1:1 with the
+  // wheel, no easing, no post-scroll drift. rAF-throttled so bursts of scroll
+  // events collapse to one read+write pass per frame.
+  let scrollScheduled = false;
+  const onScroll = () => {
+    if (scrollScheduled) return;
+    scrollScheduled = true;
+    requestAnimationFrame(() => {
+      scrollScheduled = false;
+      rows.forEach((r, i) => {
+        if (r.pin !== null) return;
+        const t = targetFor(i);
+        if (r.current !== t) { r.current = t; paint(r); }
+      });
     });
   };
 
-  // Eased follow loop — runs only while something is still moving.
-  let ticking = false;
-  const tick = () => {
-    sample();
+  // Click: pin the row, then ease it to the pinned state (the one place easing
+  // belongs — it is a discrete user action, not a scroll response).
+  let animating = false;
+  const animate = () => {
     let moving = false;
     rows.forEach((r) => {
-      const diff = r.target - r.current;
+      if (r.pin === null) return;
+      const diff = r.pin - r.current;
       if (Math.abs(diff) < SETTLE_EPS) {
-        if (r.current !== r.target) { r.current = r.target; paint(r); }
+        if (r.current !== r.pin) { r.current = r.pin; paint(r); }
         return;
       }
-      r.current += diff * EASE_FACTOR;
+      r.current += diff * CLICK_EASE;
       paint(r);
       moving = true;
     });
-    if (moving) requestAnimationFrame(tick);
-    else ticking = false;
+    if (moving) requestAnimationFrame(animate);
+    else animating = false;
   };
-  const kick = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(tick);
+  const kickAnim = () => {
+    if (animating) return;
+    animating = true;
+    requestAnimationFrame(animate);
   };
 
-  // Click pins the row under permanent user control; the sampler skips it after.
   rows.forEach((r) => {
     r.el.addEventListener('click', () => {
-      const shown = (r.pin !== null ? r.pin : r.current) > 0.5;
-      r.pin = shown ? 0 : 1;
-      kick();
+      r.pin = r.current > 0.5 ? 0 : 1;
+      kickAnim();
     });
   });
 
-  window.addEventListener('scroll', kick, { passive: true });
-  window.addEventListener('resize', () => { measure(); kick(); }, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', () => {
+    measure();
+    rows.forEach((r, i) => {
+      if (r.pin === null) r.current = targetFor(i);
+      paint(r);
+    });
+  }, { passive: true });
 
   measure();
-  rows.forEach(paint); // establish the collapsed initial state
-  kick();
+  rows.forEach((r, i) => { r.current = targetFor(i); paint(r); });
 }
