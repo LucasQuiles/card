@@ -62,11 +62,9 @@ export function init() {
     inner: null, // rise/fade target — the description text wrapped so it can be
                  // translated inside the height-clipping box (set just below)
     natH: 0,
-    rowH0: 0,   // row offsetHeight fully collapsed (--t 0)
-    growth: 0,  // total px this row adds opening (--t 0→1): desc height + the
-                // row's own padding, which interpolates with --t in the CSS
     current: 0,
-    pin: null, // null → scroll-driven; 0 or 1 → user-pinned
+    pin: null, // null → scroll-driven; 0 or 1 → user-pinned (temporary override)
+    sync: false, // true → easing back into the scroll-driven set after a pin release
     aria: null, // last-written aria-expanded boolean (paint skips no-op writes)
     vis: null,  // last-written visibility boolean
     opaque: false, // has the box opacity been lifted off its CSS-0 rest once
@@ -126,28 +124,27 @@ export function init() {
   // wheel that is invisible, but on touch a single flick hits a bottom that is
   // still receding (each row that opens adds height), so momentum under- and
   // over-shoots and the morph feels choppy. Fix: hold the document at its FULLY
-  // EXPANDED height at all times with a spacer whose height is exactly the room
-  // the still-closed rows have yet to claim — spacer = Σ(1−t_i)·natH_i. Content
-  // grown + spacer left = a constant, so scrollY ranges 0→openRange from the
-  // first frame, one flick traverses the whole morph, and momentum coasts
-  // against a height that never moves. The spacer sits below the card, is 1px
-  // wide and a11y-hidden, and collapses to 0 exactly at the bottom (prog=1, all
-  // rows open) — so it is always past the last visible element and never shows
-  // as a gap. Measured: the card already overflows every real viewport, so the
-  // reserved tail only ever lives below the fold; the resting layout is
-  // unchanged on desktop and touch alike.
-  let fullGrowthTotal = 0; // Σ growth — total px the whole list adds fully open
-  const spacer = document.createElement('div');
-  spacer.setAttribute('aria-hidden', 'true');
-  spacer.style.cssText = 'width:1px;margin:0 auto;flex:none;pointer-events:none;';
+  // EXPANDED height at all times.
+  //
+  // Reserved STATICALLY, once, not per frame: measure() sets a min-height floor
+  // on the card's container equal to its fully-open height. The rows then grow
+  // into space the container already reserves, so the container — and the
+  // document — never change height as the accordion morphs. Zero per-frame layout
+  // writes for the reservation: the floor is a hard constant, so document height
+  // is exactly constant at every openness on every surface.
+  //
+  // Why not a per-frame shrinking spacer (the two approaches this replaces): a
+  // spacer whose height is recomputed each scroll frame has to READ the card's
+  // live height and WRITE its own inside the same frame the row heights are being
+  // written — a reflow-timing race. A linear growth model (Σ(1−t_i)·growth_i)
+  // drifted ~13px from the nonlinear real height mid-morph (the page "breathing");
+  // the measured complement (expandedCardH − card.offsetHeight) read a card
+  // height ~32px stale from the write it chased, drifting the ends. A static floor
+  // has neither failure mode because it never writes during scroll at all. With
+  // body{align-items:center}, any residual height wobble bounced the whole card —
+  // a constant floor removes the wobble at the source.
   const card = document.getElementById('card') || els[0].closest('.card');
-  (card ? card.parentNode : document.body).appendChild(spacer);
-  const updateSpacer = () => {
-    let opened = 0;
-    for (const r of rows) opened += r.current * r.growth;
-    const s = fullGrowthTotal - opened;
-    spacer.style.height = `${(s > 0 ? s : 0).toFixed(2)}px`;
-  };
+  const sizeHost = card ? card.parentNode : null; // container that carries the floor
 
   // One synchronous read pass in two stages (no paint happens until control
   // returns to the event loop, so nothing flashes). Stage A collapses every
@@ -157,6 +154,9 @@ export function init() {
   // below the current offset and clamp it.
   const measure = () => {
     const savedY = window.scrollY;
+    // Drop the reserved floor before measuring, or a stale floor from a prior
+    // (larger-viewport) measure would inflate the expanded read.
+    if (sizeHost) sizeHost.style.minHeight = '';
     const savedT = rows.map((r) => r.el.style.getPropertyValue('--t'));
     const saved = rows.map((r) => (r.desc ? {
       h: r.desc.style.height, v: r.desc.style.visibility,
@@ -173,17 +173,13 @@ export function init() {
       r.desc.style.visibility = 'hidden';
     });
     rows.forEach((r) => {
-      if (r.desc) {
-        const s = r.desc.style;
-        s.paddingTop = '';   // fall back to the CSS natural padding-top
-        s.height = 'auto';
-        r.natH = r.desc.offsetHeight;
-        s.height = '0px';
-        s.paddingTop = '0px';
-      }
-      // Row height fully collapsed — the baseline the reserved tail measures the
-      // row's total opening growth against (padding included, not just the desc).
-      r.rowH0 = r.el.offsetHeight;
+      if (!r.desc) return;
+      const s = r.desc.style;
+      s.paddingTop = '';   // fall back to the CSS natural padding-top
+      s.height = 'auto';
+      r.natH = r.desc.offsetHeight;
+      s.height = '0px';
+      s.paddingTop = '0px';
     });
 
     // Stage B — open all to natural height and read the expanded scroll range.
@@ -200,15 +196,10 @@ export function init() {
       r.desc.style.opacity = '1';
       r.desc.style.visibility = 'visible';
     });
-    // Per-row total growth = fully-open row height − fully-collapsed row height,
-    // so every source of vertical change is captured (description height AND the
-    // row's --t-interpolated padding), making the reserved tail cancel the
-    // document's growth exactly rather than approximately.
-    rows.forEach((r) => { r.growth = Math.max(0, r.el.offsetHeight - r.rowH0); });
-    fullGrowthTotal = rows.reduce((a, r) => a + r.growth, 0);
-    // Zero the reserved tail so the read is the true expanded range, not
-    // expanded + a stale spacer. updateSpacer() restores it after measure.
-    spacer.style.height = '0px';
+    // The fully-open container height — the floor that holds the document
+    // constant. Read while every row is open (before the restore below), with the
+    // floor cleared (top of measure), so it is the TRUE expanded height.
+    const reservedH = sizeHost ? sizeHost.offsetHeight : 0;
     openRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 
     // Restore prior inline state.
@@ -219,6 +210,10 @@ export function init() {
       s.height = saved[i].h; s.visibility = saved[i].v;
       s.paddingTop = saved[i].p; s.opacity = saved[i].o;
     });
+    // Apply the floor: the container can no longer shrink below its expanded
+    // height, so collapsing rows leave reserved (already-counted) space rather
+    // than shortening the document. One write per measure, never during scroll.
+    if (sizeHost) sizeHost.style.minHeight = `${reservedH}px`;
     if (window.scrollY !== savedY) window.scrollTo(0, savedY);
   };
 
@@ -274,6 +269,13 @@ export function init() {
   // during motion: three unchanged-scrollY frames (scroll settled) stop it, so
   // there is zero idle cost. Pinned rows are skipped here — the click animation
   // owns them on its own rAF loop.
+  //
+  // Genuine scroll movement RELEASES any user pin: a manual tap is a temporary
+  // override, so the first real scroll after it hands the row back to the scroll
+  // mapping. Rather than snap (which would look like a glitch), the released row
+  // is marked r.sync and the click-ease loop glides it into alignment with the
+  // rest. The release is gated on !first so that merely starting the loop (a tap,
+  // or a touchstart with no drag) does not count as movement and cancel the pin.
   let ticking = false;
   let lastY = -1;
   let idle = 0;
@@ -282,15 +284,18 @@ export function init() {
     if (y === lastY) {
       if (++idle > 3) { ticking = false; return; } // settled → release the loop
     } else {
+      const first = lastY === -1; // first painted frame of this scroll gesture
       idle = 0;
       lastY = y;
       const prog = clamp01(y / openRange);
+      let released = false;
       rows.forEach((r, i) => {
-        if (r.pin !== null) return;
+        if (!first && r.pin !== null) { r.pin = null; r.sync = true; released = true; return; }
+        if (r.pin !== null || r.sync) return; // pinned / re-aligning → animate owns it
         const t = smootherstep(clamp01((prog * SPAN - i) / SPREAD));
         if (r.current !== t) { r.current = t; paint(r); }
       });
-      updateSpacer(); // keep the document height constant as rows morph
+      if (released) kickAnim(); // ease the just-released rows back into the set
     }
     requestAnimationFrame(tick);
   };
@@ -307,18 +312,25 @@ export function init() {
   let animating = false;
   const animate = () => {
     let moving = false;
-    rows.forEach((r) => {
-      if (r.pin === null) return;
-      const diff = r.pin - r.current;
+    rows.forEach((r, i) => {
+      // A pinned row eases to its fixed pin target; a released (r.sync) row eases
+      // to its LIVE scroll target — so it catches up to where the scroll mapping
+      // now wants it and rejoins the set seamlessly. targetFor(i) reads the
+      // current scrollY, so a sync in progress tracks an ongoing scroll.
+      let target;
+      if (r.pin !== null) target = r.pin;
+      else if (r.sync) target = targetFor(i);
+      else return;
+      const diff = target - r.current;
       if (Math.abs(diff) < SETTLE_EPS) {
-        if (r.current !== r.pin) { r.current = r.pin; paint(r); }
+        if (r.current !== target) { r.current = target; paint(r); }
+        if (r.sync) r.sync = false; // realigned → hand back to the scroll ticker
         return;
       }
       r.current += diff * CLICK_EASE;
       paint(r);
       moving = true;
     });
-    updateSpacer(); // a pinned row easing open/closed also reflows the tail
     if (moving) requestAnimationFrame(animate);
     else animating = false;
   };
@@ -331,6 +343,7 @@ export function init() {
   rows.forEach((r) => {
     r.el.addEventListener('click', () => {
       r.pin = r.current > 0.5 ? 0 : 1;
+      r.sync = false; // a fresh tap cancels any in-progress re-alignment
       kickAnim();
     });
   });
@@ -339,8 +352,8 @@ export function init() {
 
   // One scroll-driven accordion for EVERY surface — wheel, trackpad, and touch
   // alike. Consistency across clients is the point: the same rAF sampler drives
-  // the morph everywhere, and the reserved-height spacer (above) makes the
-  // scroll range identical on all of them, so a phone flick and a trackpad swipe
+  // the morph everywhere, and the reserved-height floor (above) makes the scroll
+  // range identical on all of them, so a phone flick and a trackpad swipe
   // traverse the exact same mapping. Native momentum is never hijacked — we only
   // sample the scroll position the platform reports.
   //
@@ -355,15 +368,22 @@ export function init() {
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('touchstart', onScroll, { passive: true });
   window.addEventListener('touchmove', onScroll, { passive: true });
-  window.addEventListener('resize', () => {
+  // Re-measure the reserved floor and re-sync every unpinned row to its scroll
+  // target. Used for viewport changes AND for font load: init() runs measure()
+  // at module time, which on a cold load is BEFORE the web fonts arrive, so the
+  // descriptions are measured with fallback-font metrics and the floor locks a
+  // few dozen px short of the real height. When the fonts swap in the text
+  // reflows taller and the document would exceed the stale floor near the bottom
+  // (the page grows as you approach it) — so we re-measure once fonts are ready.
+  const relayout = () => {
     measure();
     rows.forEach((r, i) => {
       if (r.pin === null) r.current = targetFor(i);
       paint(r);
     });
-    updateSpacer();
-  }, { passive: true });
+  };
+  window.addEventListener('resize', relayout, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
 
   rows.forEach((r, i) => { r.current = targetFor(i); paint(r); });
-  updateSpacer();
 }
