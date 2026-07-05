@@ -12,7 +12,8 @@ body {
   font-weight: var(--fw-regular);
   background: var(--bg);
   color: var(--text-primary);
-  min-height: 100vh;
+  min-height: 100vh;      /* fallback for browsers without dynamic viewport units */
+  min-height: 100dvh;     /* tracks the real visible height as mobile URL bars collapse */
   padding: var(--space-6);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;

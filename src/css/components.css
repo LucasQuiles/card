@@ -134,11 +134,19 @@
   padding-top: var(--space-1);
   overflow: clip;
   opacity: 0;
-  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s;
+
+  /* visibility:hidden removes collapsed descriptions from the a11y tree;
+     the 0.55s delay keeps it visible until the collapse transition ends. */
+  visibility: hidden;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s,
+              visibility 0s linear 0.55s;
 }
 
 .service-row.active .service-desc {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.08s,
+              visibility 0s;
 }
 
 /* ─── Quick actions ─── */
@@ -188,7 +196,7 @@
   bottom: calc(-1 * var(--space-4));
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.5625rem;
+  font-size: 0.6875rem; /* legibility floor: was 9px; ≥10.5px required for micro-labels */
   color: var(--text-tertiary);
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -198,7 +206,7 @@
 .powered-by {
   text-align: center;
   padding: var(--space-3) 0 var(--space-5);
-  font-size: 0.5625rem;
+  font-size: 0.6875rem; /* legibility floor: was 9px; ≥10.5px required for micro-labels */
   color: var(--text-tertiary);
   letter-spacing: 0.08em;
   text-transform: uppercase;

@@ -94,6 +94,7 @@ body::before {
   line-height: 1.6;
   max-width: var(--size-subtitle-max);
   margin: 0 auto;
+  text-wrap: balance;
 }
 
 /* ─── Section Headers ─── */
@@ -366,6 +367,7 @@ body::before {
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin-bottom: var(--space-7);
+  text-wrap: balance;
 }
 
 .footer-actions {

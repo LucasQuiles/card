@@ -93,6 +93,7 @@ body {
   font-weight: var(--fw-regular);
   color: var(--text-secondary);
   line-height: 1.5;
+  text-wrap: balance;
 }
 
 /* ─── Services ─── */
@@ -138,6 +139,7 @@ body {
   max-width: var(--size-footer-text-max);
   margin-left: auto;
   margin-right: auto;
+  text-wrap: balance;
 }
 
 /* ─── Footer (buttons) ─── */
