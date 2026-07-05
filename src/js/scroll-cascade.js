@@ -21,8 +21,12 @@
 // jumpiness. Pinning the denominator to a constant (the expanded range) makes
 // prog depend only on scrollY, a stable input, so the loop is gone; the
 // expanded range also gives each row a long travel of scroll to animate over,
-// so motion stays fluid rather than snapping. Painting unpinned rows straight
-// to their target each frame ties openness to the wheel 1:1 with no settling.
+// so motion stays fluid rather than snapping. A rAF ticker (not a per-event
+// paint) samples the freshest scrollY once per DISPLAY frame while a scroll is
+// live and paints unpinned rows straight to target — so openness tracks the
+// compositor 1:1 at the panel's true refresh rate, not the coarser scroll-event
+// cadence, and there is no post-scroll settling. The ticker self-terminates a
+// few frames after scroll stops, so it costs nothing at rest.
 // Rows only
 // ever grow/shrink at or below the reading position (higher-index rows sit
 // lower and open later), so expansion pushes off-screen content down rather
@@ -54,6 +58,8 @@ export function init() {
     natH: 0,
     current: 0,
     pin: null, // null → scroll-driven; 0 or 1 → user-pinned
+    aria: null, // last-written aria-expanded boolean (paint skips no-op writes)
+    vis: null,  // last-written visibility boolean
   }));
 
   // Reduced motion: a static, fully readable list is calmest. Click still
@@ -144,37 +150,70 @@ export function init() {
     if (window.scrollY !== savedY) window.scrollTo(0, savedY);
   };
 
+  // paint writes only what changed. --t/height/opacity move every frame (that
+  // IS the animation), but aria-expanded and visibility are booleans that flip
+  // once per open/close — rewriting them every frame churns the a11y tree and
+  // the attribute for no visual effect, so they are guarded on r.aria/r.vis.
   const paint = (r) => {
-    r.el.style.setProperty('--t', r.current.toFixed(4));
-    r.el.setAttribute('aria-expanded', r.current > 0.5 ? 'true' : 'false');
+    const t = r.current;
+    r.el.style.setProperty('--t', t.toFixed(4));
+    const expanded = t > 0.5;
+    if (r.aria !== expanded) {
+      r.el.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      r.aria = expanded;
+    }
     const d = r.desc;
     if (!d) return;
-    d.style.height = `${(r.current * r.natH).toFixed(2)}px`;
+    d.style.height = `${(t * r.natH).toFixed(2)}px`;
     // Text fades in a touch ahead of full height so it reads before it lands.
-    d.style.opacity = clamp01(r.current * 1.15).toFixed(3);
-    d.style.visibility = r.current > 0.001 ? 'visible' : 'hidden';
+    d.style.opacity = clamp01(t * 1.15).toFixed(3);
+    const vis = t > 0.001;
+    if (r.vis !== vis) {
+      d.style.visibility = vis ? 'visible' : 'hidden';
+      r.vis = vis;
+    }
   };
 
+  const SPAN = rows.length + SPREAD;
   const targetFor = (i) => {
     const prog = clamp01(window.scrollY / openRange);
-    return smoothstep(clamp01((prog * (rows.length + SPREAD) - i) / SPREAD));
+    return smoothstep(clamp01((prog * SPAN - i) / SPREAD));
   };
 
-  // Scroll: paint every unpinned row straight to its target — 1:1 with the
-  // wheel, no easing, no post-scroll drift. rAF-throttled so bursts of scroll
-  // events collapse to one read+write pass per frame.
-  let scrollScheduled = false;
-  const onScroll = () => {
-    if (scrollScheduled) return;
-    scrollScheduled = true;
-    requestAnimationFrame(() => {
-      scrollScheduled = false;
+  // Scroll → a rAF ticker, not a per-event paint. A scroll listener that paints
+  // on each event is capped at the browser's scroll-event cadence, which on iOS
+  // momentum scroll and 120Hz displays is coarser than the actual refresh — the
+  // rows then visibly step behind the finger. The ticker instead samples the
+  // freshest scrollY once per DISPLAY frame while a scroll is live, so paint
+  // tracks the compositor 1:1 at whatever the panel refreshes at. It runs only
+  // during motion: three unchanged-scrollY frames (scroll settled) stop it, so
+  // there is zero idle cost. Pinned rows are skipped here — the click animation
+  // owns them on its own rAF loop.
+  let ticking = false;
+  let lastY = -1;
+  let idle = 0;
+  const tick = () => {
+    const y = window.scrollY;
+    if (y === lastY) {
+      if (++idle > 3) { ticking = false; return; } // settled → release the loop
+    } else {
+      idle = 0;
+      lastY = y;
+      const prog = clamp01(y / openRange);
       rows.forEach((r, i) => {
         if (r.pin !== null) return;
-        const t = targetFor(i);
+        const t = smoothstep(clamp01((prog * SPAN - i) / SPREAD));
         if (r.current !== t) { r.current = t; paint(r); }
       });
-    });
+    }
+    requestAnimationFrame(tick);
+  };
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    lastY = -1;
+    idle = 0;
+    requestAnimationFrame(tick);
   };
 
   // Click: pin the row, then ease it to the pinned state (the one place easing
