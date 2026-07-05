@@ -127,15 +127,28 @@
 }
 
 /* Collapsed: zero the box and drop it from the a11y tree. These are static
-   states only — the expand/collapse motion lives in scroll-cascade.js (WAAPI,
-   explicit px heights). The old grid-template-rows transition animated a
-   layout property, reflowing the whole column every frame; staggered reveals
+   states only — the scroll-driven accordion motion (rows expand entering the
+   viewport's reading zone, collapse leaving it, both directions) lives in
+   scroll-cascade.js (WAAPI, explicit px heights). Do NOT reintroduce CSS
+   transitions here: the old grid-template-rows transition animated a layout
+   property, reflowing the whole column every frame; staggered reveals
    compounded those reflows into visible jank. */
 .service-row:not(.active) .service-desc {
   height: 0;
   padding-top: 0;
   opacity: 0;
   visibility: hidden;
+}
+
+/* Reduced motion: JS opens every row up front (a static, fully readable list
+   is calmer than content toggling mid-scroll) and skips WAAPI entirely; kill
+   the row's own hover/active transitions too so click-toggles are instant. */
+@media (prefers-reduced-motion: reduce) {
+  .service-row,
+  .service-row::after,
+  .service-icon {
+    transition: none;
+  }
 }
 
 /* ─── Quick actions ─── */
