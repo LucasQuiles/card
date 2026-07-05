@@ -66,6 +66,7 @@ export function init() {
     pin: null, // null → scroll-driven; 0 or 1 → user-pinned
     aria: null, // last-written aria-expanded boolean (paint skips no-op writes)
     vis: null,  // last-written visibility boolean
+    opaque: false, // has the box opacity been lifted off its CSS-0 rest once
   }));
 
   // Wrap each description's text in an inline block so the reveal can glide the
@@ -195,6 +196,11 @@ export function init() {
     // ramping linearly. The content also glides up RISE→0 px on a compositor
     // transform, so it rises into place inside the clipping box (GPU, no reflow).
     if (r.inner) {
+      // The inner wrapper owns the fade (so it can also glide up); the box's
+      // own opacity must be lifted off its collapsed CSS rest (opacity:0) or it
+      // multiplies the visible text back to zero. Written once per row, then
+      // guarded — a constant, unlike the inner's per-frame fade.
+      if (!r.opaque) { d.style.opacity = '1'; r.opaque = true; }
       r.inner.style.opacity = smootherstep(clamp01(t * 1.15)).toFixed(3);
       r.inner.style.transform = t > 0.999 ? '' : `translateY(${((1 - t) * RISE).toFixed(2)}px)`;
     } else {
